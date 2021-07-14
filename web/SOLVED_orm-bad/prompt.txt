@@ -1,0 +1,3 @@
+I just learned about orms today! They seem kinda difficult to implement though... Guess I'll stick to good old raw sql statements!
+
+orm-bad.mc.ax

